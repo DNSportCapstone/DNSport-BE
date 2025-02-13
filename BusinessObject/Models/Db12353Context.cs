@@ -47,7 +47,7 @@ public partial class Db12353Context : DbContext
 
     public virtual DbSet<Sport> Sports { get; set; }
 
-    public virtual DbSet<Stadium> Stadia { get; set; }
+    public virtual DbSet<Stadium> Stadium { get; set; }
 
     public virtual DbSet<TransactionLog> TransactionLogs { get; set; }
 
