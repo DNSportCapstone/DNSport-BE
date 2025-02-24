@@ -14,6 +14,8 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(
 builder.Services.AddScoped<IFieldRepository,FieldRepository>();
 builder.Services.AddScoped<IStadium,StadiumService>();
 builder.Services.AddScoped<CloudinaryService>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+
 
 var app = builder.Build();
 
