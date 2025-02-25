@@ -1,5 +1,5 @@
-﻿using DataAccess.Interface;
-using DataAccess.Model;
+﻿using DataAccess.Model;
+using DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -9,8 +9,8 @@ namespace Presentation.Controllers
     public class StadiumController : ControllerBase
     {
         private readonly IFieldRepository _fieldRepository;
-        private readonly IStadium _stadiumService;
-        public StadiumController(IFieldRepository fieldRepository, IStadium stadiumService)
+        private readonly IStadiumRepository _stadiumService;
+        public StadiumController(IFieldRepository fieldRepository, IStadiumRepository stadiumService)
         {
             _fieldRepository = fieldRepository;
             _stadiumService = stadiumService;

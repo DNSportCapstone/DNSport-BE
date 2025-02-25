@@ -10,10 +10,16 @@
     <PackageReference Include="CloudinaryDotNet" Version="1.27.4" />
     <PackageReference Include="MailKit" Version="4.10.0" />
     <PackageReference Include="MimeKit" Version="4.10.0" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessObject\BusinessObject.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interface\" />
   </ItemGroup>
 
 </Project>

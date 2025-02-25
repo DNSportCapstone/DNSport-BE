@@ -1,13 +1,13 @@
 ﻿using BusinessObject.Models;
-using DataAccess.Interface;
 using DataAccess.Model;
+using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess.Implement
+namespace DataAccess.Repositories.Implement
 {
     public class FieldRepository : IFieldRepository
     {
-        private Db12353Context _dbcontext = new ();
+        private Db12353Context _dbcontext = new();
         public async Task<List<FieldHomeModel>> GetFieldHomeData()
         {
             var result = await (from f in _dbcontext.Fields
@@ -17,9 +17,9 @@ namespace DataAccess.Implement
                                 select new FieldHomeModel
                                 {
                                     FieldId = f.FieldId,
-                                    FieldName = stadium.StadiumName,
-                                    SportName = s.SportName,
-                                    ImagePath = i.Url
+                                    FieldName = stadium.StadiumName ?? string.Empty,
+                                    SportName = s.SportName ?? string.Empty,
+                                    ImagePath = i.Url ?? string.Empty
                                 }).AsNoTracking().ToListAsync();
             return result;
         }

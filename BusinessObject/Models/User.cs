@@ -15,7 +15,7 @@ public partial class User
 
     public DateTime? CreatedAt { get; set; }
 
-    public virtual ICollection<BankingAccount> BankingAccounts { get; set; } = new List<BankingAccount>();
+    public virtual ICollection<BankingAccountModel> BankingAccounts { get; set; } = new List<BankingAccountModel>();
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 

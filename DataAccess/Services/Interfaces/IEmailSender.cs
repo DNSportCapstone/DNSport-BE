@@ -1,4 +1,4 @@
-﻿namespace DataAccess.Interface
+﻿namespace DataAccess.Services.Interfaces
 {
     public interface IEmailSender
     {

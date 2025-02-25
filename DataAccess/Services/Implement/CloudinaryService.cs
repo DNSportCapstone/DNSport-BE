@@ -3,7 +3,7 @@ using CloudinaryDotNet;
 using Microsoft.Extensions.Options;
 using DataAccess.Model;
 
-namespace DataAccess.Implement
+namespace DataAccess.Services.Implement
 {
     public class CloudinaryService
     {

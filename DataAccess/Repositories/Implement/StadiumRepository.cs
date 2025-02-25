@@ -1,13 +1,17 @@
-﻿using BusinessObject.Models;
-using DataAccess.Interface;
+using BusinessObject.Models;
 using DataAccess.Model;
+using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess.Implement
+namespace DataAccess.Repositories.Implement
 {
-    public class StadiumService: IStadium
+    public class StadiumRepository : IStadiumRepository
     {
-        private Db12353Context _dbcontext = new();
+        private readonly Db12353Context _dbcontext;
+        public StadiumRepository(Db12353Context dbcontext)
+        {
+            _dbcontext = dbcontext;
+        }
 
         public async Task<List<StadiumModel>> GetStadiumData()
         {

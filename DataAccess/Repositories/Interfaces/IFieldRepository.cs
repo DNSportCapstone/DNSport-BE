@@ -1,6 +1,6 @@
 ﻿using DataAccess.Model;
 
-namespace DataAccess.Interface
+namespace DataAccess.Repositories.Interfaces
 {
     public interface IFieldRepository
     {
