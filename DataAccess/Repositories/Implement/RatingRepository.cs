@@ -2,15 +2,23 @@
 using DataAccess.Interface;
 using DataAccess.Model;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DataAccess.Repositories.Implement
 {
     public class RatingRepository : IRatingRepository
     {
-        private readonly Db12353Context _context = new ();
+        private readonly Db12353Context _context = new();
 
-        public async Task<bool> AddRatingAsync(RatingModel rating)
+        public async Task<bool> AddOrUpdateCommentAsync(RatingModel rating)
         {
+            if (rating.RatingValue.HasValue && (rating.RatingValue < 1 || rating.RatingValue > 5))
+            {
+                throw new Exception("RatingValue must be between 1 and 5.");
+            }
             // Kiểm tra User tồn tại
             var userExists = await _context.Users.AnyAsync(u => u.UserId == rating.UserId);
             if (!userExists)
@@ -43,22 +51,32 @@ namespace DataAccess.Repositories.Implement
                 throw new Exception("You can only rate after the booked time has passed.");
             }
 
-            // Xóa rating cũ nếu tồn tại
+            // check đã đánh giá sao chưa
             var existingRating = await _context.Ratings
                 .FirstOrDefaultAsync(r => r.UserId == rating.UserId && r.BookingId == rating.BookingId);
 
             if (existingRating != null)
             {
-                _context.Ratings.Remove(existingRating);
-                await _context.SaveChangesAsync(); // Xóa rating cũ trước khi thêm mới
+                // Nếu rating đã tồn tại, không cho phép thay đổi RatingValue, chỉ cho phép cập nhật Comment
+                if (rating.RatingValue != null && existingRating.RatingValue != rating.RatingValue)
+                {
+                    throw new Exception("You have already rated this booking. You can only update your comment.");
+                }
+
+                // Cập nhật Comment
+                existingRating.Comment = rating.Comment;
+                existingRating.Time = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                return true;
             }
 
-            // Thêm rating mới vào database
+            //chưa có rating, thêm mới 
             var newRating = new Rating
             {
                 UserId = rating.UserId,
                 BookingId = rating.BookingId,
-                RatingValue = rating.RatingValue,
+                RatingValue = rating.RatingValue ?? 0, // null thì là 0
                 Comment = rating.Comment,
                 Time = DateTime.Now
             };
@@ -68,26 +86,6 @@ namespace DataAccess.Repositories.Implement
             return true;
         }
 
-
-
-        // Cập nhật rating
-        public async Task<bool> UpdateRatingAsync(int ratingId, RatingModel rating)
-        {
-            var existingRating = await _context.Ratings.FindAsync(ratingId);
-            if (existingRating == null)
-            {
-                throw new Exception("Rating not found");
-            }
-
-            existingRating.RatingValue = rating.RatingValue;
-            existingRating.Comment = rating.Comment;
-            existingRating.Time = DateTime.Now; // update timne
-
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        // get rating list
         public async Task<List<Rating>> GetRatingsAsync(int userId)
         {
             return await _context.Ratings

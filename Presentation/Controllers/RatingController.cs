@@ -1,6 +1,8 @@
 ﻿using DataAccess.Interface;
 using DataAccess.Model;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -15,13 +17,13 @@ namespace API.Controllers
             _ratingRepository = ratingRepository;
         }
 
-        [HttpPost("add")]
-        public async Task<IActionResult> AddRating([FromBody] RatingModel model)
+        [HttpPost("comment")]
+        public async Task<IActionResult> AddOrUpdateComment([FromBody] RatingModel model)
         {
             try
             {
-                var result = await _ratingRepository.AddRatingAsync(model);
-                return Ok(new { Success = result, Message = "Rating added successfully" });
+                var result = await _ratingRepository.AddOrUpdateCommentAsync(model);
+                return Ok(new { Success = result, Message = "Comment updated successfully" });
             }
             catch (Exception ex)
             {
@@ -29,23 +31,9 @@ namespace API.Controllers
             }
         }
 
-
-        [HttpPut("update/{ratingId}")]
-        public async Task<IActionResult> UpdateRating(int ratingId, [FromBody] RatingModel model)
-        {
-            try
-            {
-                var result = await _ratingRepository.UpdateRatingAsync(ratingId, model);
-                return Ok(new { Success = result, Message = "Rating updated successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Success = false, Message = ex.Message });
-            }
-        }
-
+      
         [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetRatings(int userId)
+        public async Task<IActionResult> GetRatingsByUser(int userId)
         {
             var ratings = await _ratingRepository.GetRatingsAsync(userId);
             return Ok(ratings);
