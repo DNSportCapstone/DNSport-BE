@@ -42,7 +42,6 @@ namespace DataAccess.Services.Implement
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync();
             return result;
-            return null;
         }
 
         public async Task<int> UpdateUser(UpdateUserRequest request)

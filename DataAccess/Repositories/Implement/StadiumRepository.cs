@@ -7,11 +7,11 @@ namespace DataAccess.Repositories.Implement
 {
     public class StadiumRepository : IStadiumRepository
     {
-        private readonly Db12353Context _dbcontext;
-        public StadiumRepository(Db12353Context dbcontext)
-        {
-            _dbcontext = dbcontext;
-        }
+        Db12353Context _dbcontext = new Db12353Context();
+        //public StadiumRepository(Db12353Context dbcontext)
+        //{
+        //    _dbcontext = dbcontext;
+        //}
 
         public async Task<List<StadiumModel>> GetStadiumData()
         {
