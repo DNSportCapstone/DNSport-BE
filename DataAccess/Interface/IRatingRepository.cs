@@ -5,8 +5,8 @@ namespace DataAccess.Interface
 {
     public interface IRatingRepository
     {
-        Task<bool> AddRatingAsync(RatingModel rating);
-        Task<bool> UpdateRatingAsync(int ratingId, RatingModel rating);
+        Task<bool> AddOrUpdateCommentAsync(RatingModel rating);
+        Task<bool> ReplyToRatingAsync(RatingReplyModel replyModel);
         Task<List<Rating>> GetRatingsAsync(int userId);
     }
 }
