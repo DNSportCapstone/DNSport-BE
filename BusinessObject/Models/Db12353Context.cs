@@ -15,7 +15,7 @@ public partial class Db12353Context : DbContext
     {
     }
 
-    public virtual DbSet<BankingAccountModel> BankingAccounts { get; set; }
+    public virtual DbSet<BankingAccount> BankingAccounts { get; set; }
 
     public virtual DbSet<Booking> Bookings { get; set; }
 
@@ -39,6 +39,10 @@ public partial class Db12353Context : DbContext
 
     public virtual DbSet<Refund> Refunds { get; set; }
 
+    public virtual DbSet<RevenueSharing> RevenueSharings { get; set; }
+
+    public virtual DbSet<RevenueTransaction> RevenueTransactions { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Service> Services { get; set; }
@@ -47,7 +51,7 @@ public partial class Db12353Context : DbContext
 
     public virtual DbSet<Sport> Sports { get; set; }
 
-    public virtual DbSet<Stadium> Stadium { get; set; }
+    public virtual DbSet<Stadium> Stadiums { get; set; }
 
     public virtual DbSet<TransactionLog> TransactionLogs { get; set; }
 
@@ -67,7 +71,7 @@ public partial class Db12353Context : DbContext
     {
         modelBuilder.UseCollation("Vietnamese_CI_AS");
 
-        modelBuilder.Entity<BankingAccountModel>(entity =>
+        modelBuilder.Entity<BankingAccount>(entity =>
         {
             entity.HasKey(e => e.BankingAccountId).HasName("PK__BankingA__A23083059413AF4D");
 
@@ -271,6 +275,33 @@ public partial class Db12353Context : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Refunds)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Refund__UserId__656C112C");
+        });
+
+        modelBuilder.Entity<RevenueSharing>(entity =>
+        {
+            entity.ToTable("RevenueSharing");
+
+            entity.Property(e => e.LessorPercentage).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.Status).HasMaxLength(50);
+
+            entity.HasOne(d => d.Stadium).WithMany(p => p.RevenueSharings)
+                .HasForeignKey(d => d.StadiumId)
+                .HasConstraintName("FK_RevenueSharing_Stadium");
+        });
+
+        modelBuilder.Entity<RevenueTransaction>(entity =>
+        {
+            entity.ToTable("RevenueTransaction");
+
+            entity.Property(e => e.AdminAmount).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.OwnerAmount).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.RevenueTransactionDate).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(12, 2)");
+
+            entity.HasOne(d => d.Booking).WithMany(p => p.RevenueTransactions)
+                .HasForeignKey(d => d.BookingId)
+                .HasConstraintName("FK_RevenueTransaction_Booking");
         });
 
         modelBuilder.Entity<Role>(entity =>
