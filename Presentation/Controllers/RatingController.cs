@@ -1,4 +1,4 @@
-﻿using DataAccess.Interface;
+﻿using DataAccess.Repositories.Interface;
 using DataAccess.Model;
 using Microsoft.AspNetCore.Mvc;
 using System;
