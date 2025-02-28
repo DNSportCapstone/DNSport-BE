@@ -15,7 +15,7 @@ namespace DataAccess.Repositories.Implement
 
         public async Task<List<StadiumModel>> GetStadiumData()
         {
-            var result = await (from s in _dbcontext.Stadium
+            var result = await (from s in _dbcontext.Stadiums
                                 select new StadiumModel
                                 {
                                     StadiumId = s.StadiumId,
@@ -38,7 +38,7 @@ namespace DataAccess.Repositories.Implement
                 Image = model.Image,
                 Status = model.Status
             };
-            await _dbcontext.Stadium.AddAsync(stadium);
+            await _dbcontext.Stadiums.AddAsync(stadium);
             await _dbcontext.SaveChangesAsync();
             return stadium;
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BusinessObject.Models;
 
-public partial class BankingAccountModel
+public partial class BankingAccount
 {
     public int BankingAccountId { get; set; }
 

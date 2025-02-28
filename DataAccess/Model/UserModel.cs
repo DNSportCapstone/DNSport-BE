@@ -10,6 +10,6 @@ namespace DataAccess.Model
         public string? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
         public virtual UserDetailModel? UserDetail { get; set; }
-        public virtual ICollection<BankingAccountModel> BankingAccounts { get; set; } = new List<BankingAccountModel>();
+        public virtual ICollection<BankingAccount> BankingAccounts { get; set; } = new List<BankingAccount>();
     }
 }
