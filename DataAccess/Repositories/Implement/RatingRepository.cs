@@ -6,27 +6,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace DataAccess.Repositories.Implement
 {
     public class RatingRepository : IRatingRepository
     {
-        private readonly Db12353Context _context = new();
+        private readonly Db12353Context _context;
 
-        public async Task<bool> AddOrUpdateCommentAsync(RatingModel rating)
+        private static HashSet<int> _reportedComments = new HashSet<int>(); // Lưu comment vi phạm trong bộ nhớ
+
+        //Danh sách từ cấm
+        private readonly List<string> _bannedWords = new List<string>
         {
-            if (rating.RatingValue.HasValue && (rating.RatingValue < 1 || rating.RatingValue > 5))
-            {
-                throw new Exception("RatingValue must be between 1 and 5.");
-            }
-            // Kiểm tra User tồn tại
-            var userExists = await _context.Users.AnyAsync(u => u.UserId == rating.UserId);
-            if (!userExists)
-            {
-                throw new Exception("User does not exist");
-            }
+            "chửi", "tục", "lừa đảo", "scam", "fake"
+        };
 
-            // Kiểm tra Booking có tồn tại và có status "Success"
+        public RatingRepository(Db12353Context context)
+        {
+            _context = context;
+        }
+
+        // Thêm hoặc cập nhật rating
+        public async Task<bool> AddOrUpdateRatingAsync(RatingModel rating)
+        {
             var booking = await _context.Bookings
                 .FirstOrDefaultAsync(b => b.BookingId == rating.BookingId &&
                                           b.UserId == rating.UserId &&
@@ -37,60 +40,107 @@ namespace DataAccess.Repositories.Implement
                 throw new Exception("Only successful bookings can be rated.");
             }
 
-            // Kiểm tra thời gian hiện tại có qua thời gian đặt sân chưa
+            // Kiểm tra EndTime của BookingField
             var bookingField = await _context.BookingFields
                 .FirstOrDefaultAsync(bf => bf.BookingId == rating.BookingId);
 
-            if (bookingField == null)
-            {
-                throw new Exception("Invalid booking field data.");
-            }
-
-            if (DateTime.Now < bookingField.EndTime)
+            if (bookingField == null || DateTime.Now < bookingField.EndTime)
             {
                 throw new Exception("You can only rate after the booked time has passed.");
             }
 
-            // check đã đánh giá sao chưa
+            // Kiểm tra xem người dùng đã rating chưa
             var existingRating = await _context.Ratings
-                .FirstOrDefaultAsync(r => r.UserId == rating.UserId && r.BookingId == rating.BookingId);
+                .FirstOrDefaultAsync(r => r.BookingId == rating.BookingId && r.UserId == rating.UserId);
 
             if (existingRating != null)
             {
-                // Nếu rating đã tồn tại, không cho phép thay đổi RatingValue, chỉ cho phép cập nhật Comment
-                if (rating.RatingValue != null && existingRating.RatingValue != rating.RatingValue)
-                {
-                    throw new Exception("You have already rated this booking. You can only update your comment.");
-                }
-
-                // Cập nhật Comment
+                existingRating.RatingValue = rating.RatingValue;
                 existingRating.Comment = rating.Comment;
                 existingRating.Time = DateTime.Now;
+            }
+            else
+            {
+                var newRating = new Rating
+                {
+                    UserId = rating.UserId,
+                    BookingId = rating.BookingId,
+                    RatingValue = rating.RatingValue,
+                    Comment = rating.Comment,
+                    Time = DateTime.Now
+                };
 
-                await _context.SaveChangesAsync();
-                return true;
+                _context.Ratings.Add(newRating);
             }
 
-            //chưa có rating, thêm mới 
-            var newRating = new Rating
-            {
-                UserId = rating.UserId,
-                BookingId = rating.BookingId,
-                RatingValue = rating.RatingValue ?? 0, // null thì là 0
-                Comment = rating.Comment,
-                Time = DateTime.Now
-            };
-
-            _context.Ratings.Add(newRating);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<List<Rating>> GetRatingsAsync(int userId)
+        //Thêm reply (Chỉ một lần, không thể sửa hoặc xóa)
+        public async Task<bool> AddReplyAsync(RatingReplyModel replyModel)
+        {
+            var rating = await _context.Ratings.FindAsync(replyModel.RatingId);
+            if (rating == null)
+            {
+                throw new Exception("Rating not found.");
+            }
+
+            if (!string.IsNullOrEmpty(rating.Reply))
+            {
+                throw new Exception("You can only reply once to a comment.");
+            }
+
+            rating.Reply = replyModel.Reply;
+            rating.ReplyTime = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        //Kiểm tra xem người dùng đã rating chưa
+        public async Task<Rating> GetRatingByBookingAsync(int bookingId, int userId)
         {
             return await _context.Ratings
-                .Where(r => r.UserId == userId)
+                .FirstOrDefaultAsync(r => r.BookingId == bookingId && r.UserId == userId);
+        }
+
+        public async Task<bool> DetectAndReportCommentAsync(int ratingId, string comment)
+        {
+            var rating = await _context.Ratings.FindAsync(ratingId);
+            if (rating == null)
+            {
+                throw new Exception("Rating not found.");
+            }
+
+            // Kiểm tra comment có chứa từ cấm không
+            if (_bannedWords.Any(word => Regex.IsMatch(comment, $"\\b{word}\\b", RegexOptions.IgnoreCase)))
+            {
+                _reportedComments.Add(ratingId); // Tự động ẩn comment
+                return true;
+            }
+
+            return false;
+        }
+
+        //Lấy danh sách comment bị ẩn
+        public async Task<List<int>> GetReportedCommentsAsync()
+        {
+            return _reportedComments.ToList();
+        }
+
+        //Lấy danh sách comment của một sân
+        public async Task<List<Rating>> GetCommentsByStadiumAsync(int stadiumId)
+        {
+            return await _context.Ratings
+                .Where(r => _context.Bookings
+                    .Any(b => b.BookingId == r.BookingId &&
+                              _context.BookingFields
+                                  .Any(bf => bf.BookingId == b.BookingId && bf.Field.StadiumId == stadiumId)) &&
+                            !_reportedComments.Contains(r.RatingId)) // Ẩn comment vi phạm
+                .OrderByDescending(r => r.Time)
                 .ToListAsync();
         }
     }
 }
+
