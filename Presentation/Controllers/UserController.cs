@@ -1,6 +1,7 @@
-﻿using DataAccess.Implement;
-using DataAccess.Interface;
+﻿using DataAccess.DTOs.Request;
 using DataAccess.Model;
+using DataAccess.Services.Implement;
+using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -9,9 +10,9 @@ namespace Presentation.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUser _userService;
+        private readonly IUserService _userService;
         private readonly IEmailSender _emailSender;
-        public UserController(IUser userService, IEmailSender emailSender)
+        public UserController(IUserService userService, IEmailSender emailSender)
         {
             _userService = userService;
             _emailSender = emailSender;
@@ -24,9 +25,9 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateUser([FromBody] UserModel model)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
-            var result = await _userService.UpdateUser(model);
+            var result = await _userService.UpdateUser(request);
             return Ok(result);
         }
 
@@ -36,7 +37,7 @@ namespace Presentation.Controllers
         // how to use with a service
         // SendEmailAsync method with the following parameters:
         // string email, string subject, string htmlMessage
-        [HttpGet("sendmail")]
+        [HttpGet("/mail")]
         public async Task<IActionResult> GetUserDetails([FromQuery] MailContent mailbody)
         {
             await _emailSender.SendEmailAsync(mailbody.To, mailbody.Subject, mailbody.Body);

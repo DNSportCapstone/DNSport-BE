@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using MailKit.Security;
 using MimeKit;
-using DataAccess.Interface;
+using DataAccess.Services.Interfaces;
 
-namespace DataAccess.Implement
+namespace DataAccess.Services.Implement
 {
     public class MailSetting
     {
@@ -49,7 +49,7 @@ namespace DataAccess.Implement
             }
             catch (Exception ex)
             {
-                System.IO.Directory.CreateDirectory("mailssave");
+                Directory.CreateDirectory("mailssave");
                 var emailsavefile = string.Format(@"mailssave/{0}.eml", Guid.NewGuid());
                 await message.WriteToAsync(emailsavefile);
             }

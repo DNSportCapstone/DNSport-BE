@@ -1,9 +1,9 @@
 ﻿using BusinessObject.Models;
 using DataAccess.Model;
 
-namespace DataAccess.Interface
+namespace DataAccess.Repositories.Interfaces
 {
-    public interface IStadium
+    public interface IStadiumRepository
     {
         Task<List<StadiumModel>> GetStadiumData();
         Task<Stadium> AddStadium(StadiumRequestModel model);

@@ -15,7 +15,7 @@ public partial class Db12353Context : DbContext
     {
     }
 
-    public virtual DbSet<BankingAccount> BankingAccounts { get; set; }
+    public virtual DbSet<BankingAccountModel> BankingAccounts { get; set; }
 
     public virtual DbSet<Booking> Bookings { get; set; }
 
@@ -67,7 +67,7 @@ public partial class Db12353Context : DbContext
     {
         modelBuilder.UseCollation("Vietnamese_CI_AS");
 
-        modelBuilder.Entity<BankingAccount>(entity =>
+        modelBuilder.Entity<BankingAccountModel>(entity =>
         {
             entity.HasKey(e => e.BankingAccountId).HasName("PK__BankingA__A23083059413AF4D");
 
