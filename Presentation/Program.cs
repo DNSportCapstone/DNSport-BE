@@ -1,4 +1,5 @@
 using AutoMapper;
+using BusinessObject.Models;
 using DataAccess.DAO;
 using DataAccess.Mapper;
 using DataAccess.Model;
@@ -7,6 +8,7 @@ using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Implement;
 using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -99,7 +101,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddDbContext<Db12353Context>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

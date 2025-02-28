@@ -10,7 +10,11 @@ namespace DataAccess.Repositories.Interfaces
 {
     public interface IRatingRepository
     {
-        Task<bool> AddOrUpdateCommentAsync(RatingModel rating);
-        Task<List<Rating>> GetRatingsAsync(int userId);
+        Task<bool> AddOrUpdateRatingAsync(RatingModel rating);
+        Task<bool> AddReplyAsync(RatingReplyModel replyModel);
+        Task<Rating> GetRatingByBookingAsync(int bookingId, int userId);
+        Task<bool> DetectAndReportCommentAsync(int ratingId, string comment);
+        Task<List<int>> GetReportedCommentsAsync();
+        Task<List<Rating>> GetCommentsByStadiumAsync(int stadiumId);
     }
 }

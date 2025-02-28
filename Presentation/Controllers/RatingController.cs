@@ -17,13 +17,14 @@ namespace API.Controllers
             _ratingRepository = ratingRepository;
         }
 
-        [HttpPost("comment")]
-        public async Task<IActionResult> AddOrUpdateComment([FromBody] RatingModel model)
+        //Thêm hoặc cập nhật đánh giá
+        [HttpPost("add")]
+        public async Task<IActionResult> AddRating([FromBody] RatingModel model)
         {
             try
             {
-                var result = await _ratingRepository.AddOrUpdateCommentAsync(model);
-                return Ok(new { Success = result, Message = "Comment updated successfully" });
+                var result = await _ratingRepository.AddOrUpdateRatingAsync(model);
+                return Ok(new { Success = result, Message = "Rating added successfully" });
             }
             catch (Exception ex)
             {
@@ -31,12 +32,57 @@ namespace API.Controllers
             }
         }
 
-      
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetRatingsByUser(int userId)
+        //Chỉ cho phép reply 1 lần
+        [HttpPost("reply")]
+        public async Task<IActionResult> AddReply([FromBody] RatingReplyModel model)
         {
-            var ratings = await _ratingRepository.GetRatingsAsync(userId);
-            return Ok(ratings);
+            try
+            {
+                var result = await _ratingRepository.AddReplyAsync(model);
+                return Ok(new { Success = result, Message = "Reply added successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+        }
+
+        //Kiểm tra xem người dùng đã rating chưa
+        [HttpGet("check/{bookingId}/{userId}")]
+        public async Task<IActionResult> CheckUserRating(int bookingId, int userId)
+        {
+            var rating = await _ratingRepository.GetRatingByBookingAsync(bookingId, userId);
+            return Ok(new { HasRated = rating != null });
+        }
+
+        [HttpPost("detect/{ratingId}")]
+        public async Task<IActionResult> DetectAndReportComment(int ratingId, [FromBody] string comment)
+        {
+            try
+            {
+                var isReported = await _ratingRepository.DetectAndReportCommentAsync(ratingId, comment);
+                return Ok(new { Reported = isReported });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+        }
+
+        //Lấy danh sách comment vi phạm
+        [HttpGet("reported-comments")]
+        public async Task<IActionResult> GetReportedComments()
+        {
+            var reportedComments = await _ratingRepository.GetReportedCommentsAsync();
+            return Ok(reportedComments);
+        }
+
+        //Lấy danh sách comment của một sân
+        [HttpGet("stadium/{stadiumId}/comments")]
+        public async Task<IActionResult> GetCommentsByStadium(int stadiumId)
+        {
+            var comments = await _ratingRepository.GetCommentsByStadiumAsync(stadiumId);
+            return Ok(comments);
         }
     }
 }
