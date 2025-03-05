@@ -8,7 +8,7 @@ namespace DataAccess.Services.Interfaces
     public interface IFieldService
     {
         Task<List<GetFieldResponse>> GetAllFieldsAsync();
-        Task<int> RegisterFieldAsync(RegisterFieldRequest request);
-        Task<EditFieldResponse> EditFieldAsync(EditFieldRequest request);
+        Task<RegisterFieldResponse> RegisterFieldAsync(RegisterFieldRequest request);
+        Task<UpdateFieldResponse> EditFieldAsync(EditFieldRequest request);
     }
 }

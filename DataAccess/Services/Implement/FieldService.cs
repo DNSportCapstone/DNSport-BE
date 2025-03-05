@@ -3,6 +3,8 @@ using DataAccess.DTOs.Request;
 using DataAccess.DTOs.Response;
 using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Threading.Tasks;
 
 namespace DataAccess.Services.Implement
@@ -10,9 +12,12 @@ namespace DataAccess.Services.Implement
     public class FieldService : IFieldService
     {
         private readonly IFieldRepository _fieldRepository;
+        private readonly Db12353Context _dbcontext;
 
-        public FieldService(IFieldRepository fieldRepository)
+
+        public FieldService(Db12353Context dbcontext, IFieldRepository fieldRepository)
         {
+            _dbcontext = dbcontext;
             _fieldRepository = fieldRepository;
         }
         public async Task<List<GetFieldResponse>> GetAllFieldsAsync()
@@ -30,64 +35,53 @@ namespace DataAccess.Services.Implement
             }).ToList();
         }
 
-        public async Task<int> RegisterFieldAsync(RegisterFieldRequest request)
+        public async Task<RegisterFieldResponse> RegisterFieldAsync(RegisterFieldRequest request)
         {
             var field = new Field
             {
-                StadiumId = request.StadiumId,
-                SportId = request.SportId,
                 Description = request.Description,
                 DayPrice = request.DayPrice,
                 NightPrice = request.NightPrice,
                 Status = request.Status
             };
 
-            return await _fieldRepository.AddAsync(field);
+            await _fieldRepository.AddAsync(field);
+            await _dbcontext.SaveChangesAsync();
+
+            if (request.ImageUrls?.Any() == true)
+            {
+                await _fieldRepository.AddImagesToFieldAsync(field.FieldId, request.ImageUrls);
+            }
+            return new RegisterFieldResponse
+            {
+                FieldId = field.FieldId,
+                Message = "Field registered successfully."
+            };
         }
-        public async Task<EditFieldResponse> EditFieldAsync(EditFieldRequest request)
+
+        public async Task<UpdateFieldResponse> EditFieldAsync(EditFieldRequest request)
         {
             var field = await _fieldRepository.GetFieldByIdAsync(request.FieldId);
             if (field == null)
             {
-                throw new KeyNotFoundException("Field not found.");
+                return new UpdateFieldResponse { Message = "Field not found." };
             }
 
-            // Cập nhật thông tin chung
             field.Description = request.Description;
-            field.DayPrice = request.DayPrice ?? 0;   // Ép kiểu từ nullable decimal? -> decimal
-            field.NightPrice = request.NightPrice ?? 0;
-            // Chỉ Admin mới có thể thay đổi trạng thái
-            //if (userRole == "Admin" && !string.IsNullOrEmpty(request.Status))
-            //{
-            //    field.Status = request.Status;
-            //}
-
-            // Xử lý upload ảnh (nếu có)
-            //if (request.Image != null)
-            //{
-            //    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/fields");
-            //    Directory.CreateDirectory(uploadsFolder);
-            //    string uniqueFileName = $"{Guid.NewGuid()}_{request.Image.FileName}";
-            //    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-            //
-            //    using (var fileStream = new FileStream(filePath, FileMode.Create))
-            //   {
-            //        await request.Image.CopyToAsync(fileStream);
-            //    }
-
-            //    field.ImageUrl = $"/images/fields/{uniqueFileName}";
-            //}
+            field.DayPrice = request.DayPrice;
+            field.NightPrice = request.NightPrice;
+            field.Status = request.Status;
 
             await _fieldRepository.UpdateFieldAsync(field);
 
-            return new EditFieldResponse
+            if (request.ImageUrls?.Any() == true)
+            {
+                await _fieldRepository.UpdateFieldImagesAsync(field.FieldId, request.ImageUrls);
+            }
+
+            return new UpdateFieldResponse
             {
                 FieldId = field.FieldId,
-                Description = field.Description,
-                DayPrice =  field.DayPrice ?? 0,
-                NightPrice = field.NightPrice ?? 0,
-                Status = field.Status,
-                //ImageUrl = field.ImageUrl ?? string.Empty,
                 Message = "Field updated successfully."
             };
         }

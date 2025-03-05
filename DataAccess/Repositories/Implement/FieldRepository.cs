@@ -48,6 +48,28 @@ namespace DataAccess.Repositories.Implement
         {
             _dbcontext.Fields.Update(field);
             await _dbcontext.SaveChangesAsync();
-        }        
+        }
+        public async Task AddImagesToFieldAsync(int fieldId, List<string> imageUrls)
+        {
+            var images = imageUrls.Select(url => new Image
+            {
+                FieldId = fieldId,
+                Url = url,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            }).ToList();
+
+            await _dbcontext.Images.AddRangeAsync(images);
+            await _dbcontext.SaveChangesAsync();
+        }
+        public async Task UpdateFieldImagesAsync(int fieldId, List<string> imageUrls)
+        {
+            var existingImages = _dbcontext.Images.Where(img => img.FieldId == fieldId);
+            _dbcontext.Images.RemoveRange(existingImages); // Xóa ảnh cũ
+
+            await AddImagesToFieldAsync(fieldId, imageUrls); // Thêm ảnh mới
+        }
+
+
     }
 }

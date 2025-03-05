@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTOs.Response
 {
-    public class EditFieldResponse
+    public class UpdateFieldResponse
     {
         public int FieldId { get; set; }
         public string Description { get; set; } = string.Empty;

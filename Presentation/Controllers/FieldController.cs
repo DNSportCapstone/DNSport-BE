@@ -26,18 +26,16 @@ namespace Presentation.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterField([FromBody] RegisterFieldRequest request)
         {
-            var fieldId = await _fieldService.RegisterFieldAsync(request);
-            return Ok(new { Message = "Field registered successfully", FieldId = fieldId });
-
-        }
-        [HttpPut("edit")]
-        public async Task<IActionResult> EditField([FromForm] EditFieldRequest request)
-        {
-            //var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "User"; // Lấy quyền của user
-
-            var response = await _fieldService.EditFieldAsync(request); //userRole); sau nay` co role se dung
+            var response = await _fieldService.RegisterFieldAsync(request);
             return Ok(response);
         }
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateField([FromBody] EditFieldRequest request)
+        {
+            var response = await _fieldService.EditFieldAsync(request);
+            return Ok(response);
+        }
+
 
 
     }

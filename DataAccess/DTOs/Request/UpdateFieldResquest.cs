@@ -10,10 +10,10 @@ namespace DataAccess.DTOs.Request
     {
         public int FieldId { get; set; }
         public string Description { get; set; } = string.Empty;
-        public decimal? DayPrice { get; set; }  // Cho phép null
-        public decimal? NightPrice { get; set; } // Cho phép null
+        public decimal? DayPrice { get; set; } 
+        public decimal? NightPrice { get; set; } 
         public string? Status { get; set; }
-        //public IFormFile? Image { get; set; }
+        public List<string> ImageUrls { get; set; }
     }
 
 }
