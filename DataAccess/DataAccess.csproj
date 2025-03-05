@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Interface\**" />
+    <EmbeddedResource Remove="Interface\**" />
+    <None Remove="Interface\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CloudinaryDotNet" Version="1.27.4" />
     <PackageReference Include="MailKit" Version="4.10.0" />
     <PackageReference Include="MimeKit" Version="4.10.0" />
@@ -16,10 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessObject\BusinessObject.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Interface\" />
   </ItemGroup>
 
 </Project>

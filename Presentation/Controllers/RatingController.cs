@@ -1,4 +1,4 @@
-﻿using DataAccess.Repositories.Interface;
+﻿using DataAccess.Repositories.Interfaces;
 using DataAccess.Model;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,13 +17,13 @@ namespace API.Controllers
             _ratingRepository = ratingRepository;
         }
 
-        //Thêm hoặc cập nhật đánh giá
+        //Thêm đánh giá
         [HttpPost("add")]
         public async Task<IActionResult> AddRating([FromBody] RatingModel model)
         {
             try
             {
-                var result = await _ratingRepository.AddOrUpdateRatingAsync(model);
+                var result = await _ratingRepository.AddRatingAsync(model);
                 return Ok(new { Success = result, Message = "Rating added successfully" });
             }
             catch (Exception ex)
