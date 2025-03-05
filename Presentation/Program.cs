@@ -1,4 +1,4 @@
-using AutoMapper;
+    using AutoMapper;
 using DataAccess.DAO;
 using DataAccess.Mapper;
 using DataAccess.Model;
@@ -20,14 +20,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 var MaillSettings = configuration.GetSection("MaillSettings");
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+//Field 
 builder.Services.AddScoped<IFieldRepository,FieldRepository>();
+builder.Services.AddScoped<IFieldService, FieldService>();
+
 builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
 builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.Configure<MailSetting>(MaillSettings);
 builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 builder.Services.AddSwaggerGen(option =>
-{
+{   
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "DNSport API", Version = "v1" });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
