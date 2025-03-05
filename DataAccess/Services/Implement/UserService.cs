@@ -11,7 +11,7 @@ namespace DataAccess.Services.Implement
         private Db12353Context _dbcontext = new();
 
         // To Do
-        public async Task<UserModel> GetUserDetails(int userId)
+        public async Task<UpdateUserRequest> GetUserDetails(int userId)
         {
             var result = await (from u in _dbcontext.Users
                                 join d in _dbcontext.UserDetails
@@ -23,21 +23,18 @@ namespace DataAccess.Services.Implement
                                 join r in _dbcontext.Roles
                                 on u.RoleId equals r.RoleId
                                 where u.UserId == userId
-                                select new UserModel
+                                select new UpdateUserRequest
                                 {
                                     UserId = u.UserId,
                                     RoleId = u.RoleId,
                                     Email = u.Email,
                                     Status = u.Status,
-                                    UserDetail = new UserDetailModel {
-                                        PhoneNumber = ud.PhoneNumber,
-                                        FullName = ud.FullName,
-                                    },
-                                    // To Do
-                                    /*Account = ba.Account,
+                                    Account = ba.Account,
                                     Bank = ba.Bank,
-                                    RoleName = r.RoleName,
-                                    Address = ud.Address*/
+                                    PhoneNumber = ud.PhoneNumber,
+                                    FullName = ud.FullName,
+                                    Address = ud.Address,
+                                    RoleName = r.RoleName
                                 })
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync();

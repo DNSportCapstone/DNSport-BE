@@ -1,4 +1,7 @@
     using AutoMapper;
+using AutoMapper;
+using DataAccess.Repositories.Interface;
+using BusinessObject.Models;
 using DataAccess.DAO;
 using DataAccess.Mapper;
 using DataAccess.Model;
@@ -7,6 +10,7 @@ using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Implement;
 using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -20,7 +24,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 var MaillSettings = configuration.GetSection("MaillSettings");
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
-//Field 
 builder.Services.AddScoped<IFieldRepository,FieldRepository>();
 builder.Services.AddScoped<IFieldService, FieldService>();
 
@@ -29,6 +32,7 @@ builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.Configure<MailSetting>(MaillSettings);
 builder.Services.AddSingleton<IEmailSender, SendMailServices>();
+
 builder.Services.AddSwaggerGen(option =>
 {   
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "DNSport API", Version = "v1" });
@@ -70,9 +74,17 @@ builder.Services.AddScoped<IMapper, Mapper>();
 builder.Services.AddScoped<IFieldRepository,FieldRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserDetailRepository, UserDetailRepository>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IFieldRepository, FieldRepository>();
+builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
 
 // Service
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+builder.Services.AddScoped<CloudinaryService>();
+builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.Configure<MailSetting>(MaillSettings);
+builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 
 var corsSettings = builder.Configuration.GetSection("CORS");
 var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
@@ -101,7 +113,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
+builder.Services.AddDbContext<Db12353Context>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
