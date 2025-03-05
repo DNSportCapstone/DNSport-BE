@@ -58,16 +58,18 @@ namespace DataAccess.Repositories.Implement
                 throw new Exception("You can only rate once per booking.");
             }
 
-            var newRating = new Rating
-            {
-                UserId = rating.UserId,
-                BookingId = rating.BookingId,
-                RatingValue = rating.RatingValue,
-                Comment = rating.Comment,
-                Time = DateTime.Now
-            };
+                var newRating = new Rating
+                {
+                    UserId = rating.UserId,
+                    BookingId = rating.BookingId,
+                    RatingValue = rating.RatingValue,
+                    Comment = rating.Comment,
+                    Time = DateTime.Now
+                };
 
-            _context.Ratings.Add(newRating);
+                _context.Ratings.Add(newRating);
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }
