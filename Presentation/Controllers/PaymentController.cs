@@ -20,7 +20,7 @@ namespace Presentation.Controllers
             _vnpayPayment = vnpayPayment;
         }
 
-        [HttpPost("CreatePaymentUrl")]
+        [HttpPost("create-payment-url")]
         public ActionResult<string> CreatePaymentUrl([FromBody] PaymentRequestModel payment)
         {
             try

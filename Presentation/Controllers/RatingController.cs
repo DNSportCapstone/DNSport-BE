@@ -1,6 +1,7 @@
 ﻿using DataAccess.Model;
 using Microsoft.AspNetCore.Mvc;
 using DataAccess.Repositories.Implement;
+using DataAccess.Repositories.Interfaces;
 
 namespace API.Controllers
 {

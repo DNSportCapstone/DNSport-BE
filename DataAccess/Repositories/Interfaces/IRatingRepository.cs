@@ -1,7 +1,7 @@
 ﻿using BusinessObject.Models;
 using DataAccess.Model;
 
-namespace DataAccess.Repositories.Implement
+namespace DataAccess.Repositories.Interfaces
 {
     public interface IRatingRepository
     {
