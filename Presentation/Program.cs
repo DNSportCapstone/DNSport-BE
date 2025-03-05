@@ -1,6 +1,5 @@
     using AutoMapper;
 using AutoMapper;
-using DataAccess.Repositories.Interface;
 using BusinessObject.Models;
 using DataAccess.DAO;
 using DataAccess.Mapper;
