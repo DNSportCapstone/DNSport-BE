@@ -21,9 +21,15 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 var MaillSettings = configuration.GetSection("MaillSettings");
-
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+builder.Services.AddScoped<IFieldRepository,FieldRepository>();
+builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
+builder.Services.AddScoped<CloudinaryService>();
+builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.Configure<MailSetting>(MaillSettings);
+builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 builder.Services.AddSwaggerGen(option =>
-{
+{   
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "DNSport API", Version = "v1" });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -64,8 +70,9 @@ builder.Services.AddScoped<IFieldRepository,FieldRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserDetailRepository, UserDetailRepository>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
-builder.Services.AddScoped<IFieldRepository, FieldRepository>();
 builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
+builder.Services.AddScoped<IFieldService, FieldService>();
+
 
 // Service
 builder.Services.AddScoped<IAuthService, AuthService>();
