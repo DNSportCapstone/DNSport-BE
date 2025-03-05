@@ -2,10 +2,6 @@
 using DataAccess.Repositories.Interface;
 using DataAccess.Model;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
 namespace DataAccess.Repositories.Implement
