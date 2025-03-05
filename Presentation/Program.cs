@@ -1,4 +1,8 @@
 using AutoMapper;
+<<<<<<< HEAD
+=======
+using DataAccess.Repositories.Interface;
+>>>>>>> main
 using BusinessObject.Models;
 using DataAccess.DAO;
 using DataAccess.Mapper;
@@ -21,7 +25,18 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 var MaillSettings = configuration.GetSection("MaillSettings");
+<<<<<<< HEAD
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+builder.Services.AddScoped<IFieldRepository,FieldRepository>();
+builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
+builder.Services.AddScoped<CloudinaryService>();
+builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.Configure<MailSetting>(MaillSettings);
+builder.Services.AddSingleton<IEmailSender, SendMailServices>();
+=======
 
+>>>>>>> main
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "DNSport API", Version = "v1" });
@@ -102,6 +117,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 builder.Services.AddDbContext<Db12353Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
