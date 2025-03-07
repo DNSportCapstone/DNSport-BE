@@ -1,8 +1,7 @@
-﻿using DataAccess.Repositories.Interfaces;
-using DataAccess.Model;
+﻿using DataAccess.Model;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
+using DataAccess.Repositories.Implement;
+using DataAccess.Repositories.Interfaces;
 
 namespace API.Controllers
 {
