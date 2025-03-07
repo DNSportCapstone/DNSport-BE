@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusinessObject.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +14,7 @@ namespace DataAccess.Model
         public decimal DayPrice { get; set; }
         public decimal NightPrice { get; set; }
         public string Status { get; set; }
-
-        // List of Images
         public List<ImageModel> Images { get; set; }
+        public virtual Stadium Stadium { get; set; }
     }
 }
