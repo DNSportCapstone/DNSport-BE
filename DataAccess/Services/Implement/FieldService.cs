@@ -34,6 +34,20 @@ namespace DataAccess.Services.Implement
                 ImageUrls = f.Images.Select(i => i.Url).ToList()
             }).ToList();
         }
+        public async Task<List<GetFieldResponse>> GetFieldsByStadiumAsync(int stadiumId)
+        {
+            var fields = await _fieldRepository.GetFieldsByStadiumAsync(stadiumId);
+            return fields.Select(f => new GetFieldResponse
+            {
+                FieldId = f.FieldId,
+                StadiumId = f.StadiumId ?? 0,
+                SportId = f.SportId ?? 0,
+                Description = f.Description,
+                DayPrice = f.DayPrice ?? 0,
+                NightPrice = f.NightPrice ?? 0,
+                ImageUrls = f.Images.Select(i => i.Url).ToList()
+            }).ToList();
+        }
 
         public async Task<RegisterFieldResponse> RegisterFieldAsync(RegisterFieldRequest request)
         {

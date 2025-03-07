@@ -9,6 +9,7 @@ namespace DataAccess.Repositories.Interfaces
     {
         Task<List<FieldHomeModel>> GetFieldHomeData();
         Task<List<Field>> GetAllFieldsAsync();
+        Task<List<Field>> GetFieldsByStadiumAsync(int stadiumId);
         Task<int> AddAsync(Field field);
         Task<Field?> GetFieldByIdAsync(int fieldId);
         Task UpdateFieldAsync(Field field);

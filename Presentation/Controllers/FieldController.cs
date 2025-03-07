@@ -22,6 +22,16 @@ namespace Presentation.Controllers
             var fields = await _fieldService.GetAllFieldsAsync();
             return Ok(fields);
         }
+        [HttpGet("stadium/{stadiumId}")]
+        public async Task<IActionResult> GetFieldsByStadium(int stadiumId)
+        {
+            var fields = await _fieldService.GetFieldsByStadiumAsync(stadiumId);
+            if (fields == null || fields.Count == 0)
+            {
+                return NotFound(new { message = "No fields found for this stadium." });
+            }
+            return Ok(fields);
+        }
 
         [HttpPost("register")]
         public async Task<IActionResult> RegisterField([FromBody] RegisterFieldRequest request)
