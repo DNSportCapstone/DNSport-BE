@@ -23,16 +23,15 @@ namespace Presentation.Controllers
             return Ok(fields);
         }
         [HttpGet("stadium/{stadiumId}")]
-        public async Task<IActionResult> GetFieldsByStadium(int stadiumId)
+        public async Task<IActionResult> GetFieldsByStadiumIdAsync(int stadiumId)
         {
-            var fields = await _fieldService.GetFieldsByStadiumAsync(stadiumId);
+            var fields = await _fieldService.GetFieldsByStadiumIdAsync(stadiumId);
             if (fields == null || fields.Count == 0)
             {
                 return NotFound(new { message = "No fields found for this stadium." });
             }
             return Ok(fields);
         }
-
         [HttpPost("register")]
         public async Task<IActionResult> RegisterField([FromBody] RegisterFieldRequest request)
         {

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using BusinessObject.Models;
+using DataAccess.DTOs.Response;
 using DataAccess.Model;
 
 namespace DataAccess.Mapper
@@ -16,6 +17,8 @@ namespace DataAccess.Mapper
             CreateMap<User, UserModel>().ReverseMap();
             CreateMap<UserDetail, UserDetailModel>().ReverseMap();
             CreateMap<BankingAccount, BankAccountModel>().ReverseMap();
+            CreateMap<FieldModel, GetFieldResponse>();
+            CreateMap<Field, GetFieldResponse>();
         }
     }
 }

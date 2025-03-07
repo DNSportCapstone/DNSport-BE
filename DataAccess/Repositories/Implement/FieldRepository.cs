@@ -32,7 +32,7 @@ namespace DataAccess.Repositories.Implement
                 .Include(f => f.Images) // Load danh sách ảnh của sân
                 .ToListAsync();
         }
-        public async Task<List<Field>> GetFieldsByStadiumAsync(int stadiumId)
+        public async Task<List<Field>> GetFieldsByStadiumIdAsync(int stadiumId)
         {
             return await _dbcontext.Fields
                 .Where(f => f.StadiumId == stadiumId)
