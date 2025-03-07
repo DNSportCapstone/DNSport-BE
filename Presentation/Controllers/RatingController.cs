@@ -79,9 +79,9 @@ namespace API.Controllers
 
         //Lấy danh sách comment của một sân
         [HttpGet("field/{fieldId}/comments")]
-        public async Task<IActionResult> GetCommentsByField(int fieldId)
+        public async Task<IActionResult> GetCommentsByFieldId(int fieldId)
         {
-            var comments = await _ratingRepository.GetCommentsByFieldAsync(fieldId);
+            var comments = await _ratingRepository.GetCommentsByFieldIdAsync(fieldId);
             return Ok(comments);
         }
 
