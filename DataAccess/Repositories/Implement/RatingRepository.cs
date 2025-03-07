@@ -127,17 +127,18 @@ namespace DataAccess.Repositories.Implement
         }
 
         //Lấy danh sách comment của một sân
-        public async Task<List<Rating>> GetCommentsByStadiumAsync(int stadiumId)
+        public async Task<List<Rating>> GetCommentsByFieldAsync(int fieldId)
         {
             return await _context.Ratings
                 .Where(r => _context.Bookings
                     .Any(b => b.BookingId == r.BookingId &&
                               _context.BookingFields
-                                  .Any(bf => bf.BookingId == b.BookingId && bf.Field.StadiumId == stadiumId)) &&
+                                  .Any(bf => bf.BookingId == b.BookingId && bf.FieldId == fieldId)) &&
                             !_reportedComments.Contains(r.RatingId)) // Ẩn comment vi phạm
                 .OrderByDescending(r => r.Time)
                 .ToListAsync();
         }
+
     }
 }
 

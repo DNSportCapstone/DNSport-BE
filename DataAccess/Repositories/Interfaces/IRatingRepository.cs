@@ -8,7 +8,7 @@ namespace DataAccess.Repositories.Interfaces
         Task<bool> AddRatingAsync(RatingModel rating);
         Task<bool> AddReplyAsync(RatingReplyModel replyModel);
         Task<bool> DetectAndReportCommentAsync(int ratingId, string comment);
-        Task<List<Rating>> GetCommentsByStadiumAsync(int stadiumId);
+        Task<List<Rating>> GetCommentsByFieldAsync(int stadiumId);
         Task<Rating> GetRatingByBookingAsync(int bookingId, int userId);
         Task<List<int>> GetReportedCommentsAsync();
     }

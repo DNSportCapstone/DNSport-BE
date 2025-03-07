@@ -78,11 +78,12 @@ namespace API.Controllers
         }
 
         //Lấy danh sách comment của một sân
-        [HttpGet("stadium/{stadiumId}/comments")]
-        public async Task<IActionResult> GetCommentsByStadium(int stadiumId)
+        [HttpGet("field/{fieldId}/comments")]
+        public async Task<IActionResult> GetCommentsByField(int fieldId)
         {
-            var comments = await _ratingRepository.GetCommentsByStadiumAsync(stadiumId);
+            var comments = await _ratingRepository.GetCommentsByFieldAsync(fieldId);
             return Ok(comments);
         }
+
     }
 }
