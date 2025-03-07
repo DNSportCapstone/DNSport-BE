@@ -7,6 +7,5 @@ namespace DataAccess.Repositories.Interfaces
     {
         Task<List<StadiumModel>> GetStadiumData();
         Task<Stadium> AddStadium(StadiumRequestModel model);
-        Task<bool> UpdateStadiumImage(int id, string imageUrl);
     }
 }

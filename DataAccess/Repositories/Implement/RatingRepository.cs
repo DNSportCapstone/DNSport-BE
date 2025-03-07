@@ -127,7 +127,7 @@ namespace DataAccess.Repositories.Implement
         }
 
         //Lấy danh sách comment của một sân
-        public async Task<List<Rating>> GetCommentsByFieldAsync(int fieldId)
+        public async Task<List<Rating>> GetCommentsByFieldIdAsync(int fieldId)
         {
             return await _context.Ratings
                 .Where(r => _context.Bookings

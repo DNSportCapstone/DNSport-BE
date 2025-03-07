@@ -49,16 +49,5 @@ namespace DataAccess.Repositories.Implement
             await _dbcontext.SaveChangesAsync();
             return stadium;
         }
-
-
-        public async Task<bool> UpdateStadiumImage(int id, string imageUrl)
-        {
-            var stadium = await _dbcontext.Stadiums.FindAsync(id);
-            if (stadium == null) return false;
-
-            stadium.Image = imageUrl;
-            _dbcontext.Stadiums.Update(stadium);
-            return await _dbcontext.SaveChangesAsync() > 0;
-        }
     }
 }

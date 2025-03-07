@@ -48,32 +48,5 @@ namespace Presentation.Controllers
             var result = await _fieldRepository.GetFieldHomeData();
             return Ok(result);
         }
-
-
-        //Upload ảnh lên Cloudinary
-        [HttpPost("{id}/UploadImage")]
-        public async Task<IActionResult> UploadImage(int id, IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
-
-            var uploadParams = new ImageUploadParams()
-            {
-                File = new FileDescription(file.FileName, file.OpenReadStream()),
-                Folder = "stadium" // Ảnh lưu vào folder "stadium" trên Cloudinary
-            };
-
-            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            if (uploadResult.Error != null)
-                return BadRequest(uploadResult.Error.Message);
-
-            var imageUrl = uploadResult.SecureUrl.ToString();
-            var success = await _stadiumService.UpdateStadiumImage(id, imageUrl);
-
-            if (!success)
-                return StatusCode(500, "Could not save image URL to database.");
-
-            return Ok(new { ImageUrl = imageUrl });
-        }
     }
 }
