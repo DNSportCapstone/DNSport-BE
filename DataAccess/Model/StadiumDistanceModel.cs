@@ -14,6 +14,7 @@ namespace DataAccess.Model
         public string Image { get; set; }  
         public string Distance { get; set; }
         public string Duration  { get; set; } 
+        public double DistanceValue { get; set; }
     }
 
 }
