@@ -7,7 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Interface\**" />
+    <EmbeddedResource Remove="Interface\**" />
+    <None Remove="Interface\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="QuestPDF" Version="2025.1.3" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.27.4" />
+    <PackageReference Include="MailKit" Version="4.10.0" />
+    <PackageReference Include="MimeKit" Version="4.10.0" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
+    <PackageReference Include="VNPAY.NET" Version="8.5.0" />
   </ItemGroup>
 
   <ItemGroup>
