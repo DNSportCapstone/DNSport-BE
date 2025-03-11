@@ -34,7 +34,8 @@ namespace DataAccess.Services.Implement
                                     PhoneNumber = ud.PhoneNumber,
                                     FullName = ud.FullName,
                                     Address = ud.Address,
-                                    RoleName = r.RoleName
+                                    RoleName = r.RoleName,
+                                    ReceiveNotification = u.ReceiveNotification
                                 })
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync();
@@ -43,7 +44,12 @@ namespace DataAccess.Services.Implement
 
         public async Task<int> UpdateUser(UpdateUserRequest request)
         {
-            //update user
+            var u = await _dbcontext.Users.FirstOrDefaultAsync(x => x.UserId == request.UserId);
+            if (u is not null)
+            {
+                u.ReceiveNotification = request.ReceiveNotification;
+            }
+            //update user detail
             var user = await _dbcontext.UserDetails.FirstOrDefaultAsync(x => x.UserId == request.UserId);
             if (user is not null)
             {
