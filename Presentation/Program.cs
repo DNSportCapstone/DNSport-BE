@@ -85,6 +85,8 @@ builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.Configure<MailSetting>(MaillSettings);
 builder.Services.AddSingleton<IEmailSender, SendMailServices>();
+builder.Services.AddHttpClient<IGoMapsService, GoMapsService>();
+
 
 var corsSettings = builder.Configuration.GetSection("CORS");
 var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
