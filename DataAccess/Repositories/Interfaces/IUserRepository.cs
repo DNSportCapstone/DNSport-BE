@@ -1,4 +1,5 @@
-﻿using DataAccess.Model;
+﻿using DataAccess.DTOs.Request;
+using DataAccess.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace DataAccess.Repositories.Interfaces
     {
         Task<UserModel> AddNewUser(UserModel userModel);
         Task<UserModel> GetUserByEmail(string email);
+        Task<UpdateUserRequest> GetUserDetails(int userId);
+        Task<int> UpdateUser(UpdateUserRequest request);
     }
 }

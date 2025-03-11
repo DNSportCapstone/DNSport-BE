@@ -28,7 +28,6 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(
 builder.Services.AddScoped<IFieldRepository,FieldRepository>();
 builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
 builder.Services.AddScoped<CloudinaryService>();
-builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.Configure<MailSetting>(MaillSettings);
 builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 builder.Services.AddSwaggerGen(option =>
@@ -84,7 +83,6 @@ builder.Services.AddScoped<IFieldService, FieldService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<CloudinaryService>();
-builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.Configure<MailSetting>(MaillSettings);
 builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 

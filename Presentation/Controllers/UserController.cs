@@ -1,4 +1,5 @@
 ﻿using DataAccess.DTOs.Request;
+using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Implement;
 using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -11,9 +12,9 @@ namespace Presentation.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserRepository _userService;
         private readonly IEmailSender _emailSender;
-        public UserController(IUserService userService, IEmailSender emailSender)
+        public UserController(IUserRepository userService, IEmailSender emailSender)
         {
             _userService = userService;
             _emailSender = emailSender;
