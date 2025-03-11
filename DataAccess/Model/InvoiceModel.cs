@@ -3,7 +3,10 @@
     public class InvoiceModel
     {
         public int Id { get; set; }
-        public string CustomerName { get; set; } = string.Empty;
+        public string? CustomerName { get; set; } = string.Empty;
+        public string? Email { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set; } = string.Empty;
+        public string? Address { get; set; } = string.Empty;
         public DateTime Date { get; set; } = DateTime.Now;
         public decimal TotalAmount => CalculateTotalAmount();
         public List<InvoiceItem> Items { get; set; } = new();

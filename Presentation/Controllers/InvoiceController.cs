@@ -1,6 +1,4 @@
-﻿using DataAccess.Interface;
-using DataAccess.Model;
-using Microsoft.AspNetCore.Http;
+﻿using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -11,28 +9,16 @@ namespace Presentation.Controllers
     {
         private readonly IInvoiceService _invoiceService;
 
-        public InvoiceController(IInvoiceService invoiceService)
+        public InvoiceController(IInvoiceService invoiceService, IUserService userService)
         {
             _invoiceService = invoiceService;
         }
 
         [HttpGet("download/{id}")]
-        public IActionResult DownloadInvoice(int id)
+        public async Task<IActionResult> DownloadInvoice(int id)
         {
-            var invoice = new InvoiceModel
-            {
-                Id = id,
-                CustomerName = "Nguyễn Văn A",
-                Date = DateTime.Now,
-                Items = new List<InvoiceItem>
-                {
-                    new() { Description = "Sản phẩm A", Quantity = 2, UnitPrice = 200000 },
-                    new() { Description = "Sản phẩm B", Quantity = 1, UnitPrice = 100000 },
-                }
-            };
-
-            var pdfBytes = _invoiceService.GeneratePdf(invoice);
-            return File(pdfBytes, "application/pdf", $"Invoice_{id}.pdf");
+            var pdfBytes = await _invoiceService.GeneratePdf(id);
+            return File(pdfBytes, "application/pdf", $"Hoa_don_{id}.pdf");
         }
     }
 }

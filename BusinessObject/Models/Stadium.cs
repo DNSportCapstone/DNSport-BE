@@ -19,5 +19,7 @@ public partial class Stadium
 
     public virtual ICollection<Field> Fields { get; set; } = new List<Field>();
 
+    public virtual ICollection<RevenueSharing> RevenueSharings { get; set; } = new List<RevenueSharing>();
+
     public virtual User? User { get; set; }
 }

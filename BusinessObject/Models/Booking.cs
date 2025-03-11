@@ -23,6 +23,8 @@ public partial class Booking
 
     public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 
+    public virtual ICollection<RevenueTransaction> RevenueTransactions { get; set; } = new List<RevenueTransaction>();
+
     public virtual ICollection<TransactionLog> TransactionLogs { get; set; } = new List<TransactionLog>();
 
     public virtual User? User { get; set; }
