@@ -77,39 +77,30 @@ namespace DataAccess.Services.Implement
         {
             var stadiums = await _stadiumRepository.GetStadiumData();
 
-            var stadiumList = new List<StadiumDistanceModel>();
+            var distanceTasks = stadiums.Select(stadium => GetDistanceMatrixAsync(userLocation, stadium.Address ?? string.Empty));
+            var distanceResults = await Task.WhenAll(distanceTasks);
 
-            foreach (var stadium in stadiums)
+            var stadiumList = stadiums.Select((stadium, index) =>
             {
-                var distanceData = await GetDistanceMatrixAsync(userLocation, stadium.Address);
-                var distanceInfo = JsonSerializer.Deserialize<DistanceMatrixResponse>(distanceData);
-
+                var distanceInfo = JsonSerializer.Deserialize<DistanceMatrixResponse>(distanceResults[index]);
                 var distanceText = distanceInfo?.Rows?.FirstOrDefault()?.Elements?.FirstOrDefault()?.Distance?.Text ?? "N/A";
                 var duration = distanceInfo?.Rows?.FirstOrDefault()?.Elements?.FirstOrDefault()?.Duration?.Text ?? "N/A";
 
-                // Chuyển distance từ string (ví dụ: "5.4 km") sang số (5.4)
-                double distanceValue = 0;
-                if (distanceText != "N/A")
-                {
-                    double.TryParse(Regex.Match(distanceText, @"\d+(\.\d+)?").Value, out distanceValue);
-                }
+                double.TryParse(Regex.Match(distanceText, @"\d+(\.\d+)?").Value, out double distanceValue);
 
-                stadiumList.Add(new StadiumDistanceModel
+                return new StadiumDistanceModel
                 {
                     StadiumId = stadium.StadiumId,
-                    StadiumName = stadium.StadiumName,
-                    Address = stadium.Address,
-                    Image = stadium.Image,
+                    StadiumName = stadium.StadiumName ?? string.Empty,
+                    Address = stadium.Address ?? string.Empty,
+                    Image = stadium.Image ?? string.Empty,
                     Distance = distanceText,
                     Duration = duration,
-                    DistanceValue = distanceValue // Thêm thuộc tính DistanceValue để sắp xếp
-                });
-            }
+                    DistanceValue = distanceValue
+                };
+            }).OrderBy(s => s.DistanceValue).ToList();
 
-            // Sắp xếp theo DistanceValue từ nhỏ tới lớn
-            return stadiumList.OrderBy(s => s.DistanceValue).ToList();
+            return stadiumList;
         }
-
-
     }
 }
