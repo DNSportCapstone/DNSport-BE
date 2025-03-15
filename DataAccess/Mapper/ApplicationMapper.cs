@@ -16,6 +16,8 @@ namespace DataAccess.Mapper
             CreateMap<User, UserModel>().ReverseMap();
             CreateMap<UserDetail, UserDetailModel>().ReverseMap();
             CreateMap<BankingAccount, BankAccountModel>().ReverseMap();
+            CreateMap<Field, FieldModel>().ForMember(dest => dest.BookingFields, opt => opt.MapFrom(src => src.BookingFields)).ReverseMap();
+            CreateMap<BookingField, BookingFieldModel>().ReverseMap();
         }
     }
 }
