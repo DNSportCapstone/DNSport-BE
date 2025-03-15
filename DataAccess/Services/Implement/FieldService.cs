@@ -1,6 +1,7 @@
 ﻿using BusinessObject.Models;
 using DataAccess.DTOs.Request;
 using DataAccess.DTOs.Response;
+using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -86,5 +87,10 @@ namespace DataAccess.Services.Implement
             };
         }
 
+        public async Task<List<FieldModel>> GetFieldsByStadiumId(int stadiumId)
+        {
+            return await _fieldRepository.GetFieldsByStadiumId(stadiumId);
+
+        }
     }
 }

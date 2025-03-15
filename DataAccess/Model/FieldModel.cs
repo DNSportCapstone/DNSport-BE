@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataAccess.Model
+﻿namespace DataAccess.Model
 {
     public class FieldModel
     {
@@ -16,5 +10,6 @@ namespace DataAccess.Model
 
         // List of Images
         public List<ImageModel> Images { get; set; }
+        public virtual ICollection<BookingFieldModel> BookingFields { get; set; } = new List<BookingFieldModel>();
     }
 }
