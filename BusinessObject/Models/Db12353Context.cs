@@ -268,6 +268,7 @@ public partial class Db12353Context : DbContext
 
             entity.Property(e => e.RefundAmount).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.Time).HasColumnType("datetime");
 
             entity.HasOne(d => d.Payment).WithMany(p => p.Refunds)
                 .HasForeignKey(d => d.PaymentId)
