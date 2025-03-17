@@ -30,9 +30,9 @@ namespace DataAccess.Services.Implement
 
                 Items = new List<InvoiceItem>
                 {
-                    new() { Description = "Sân nhỏ cỏ đen (18h -19h )", Quantity = 1, UnitPrice = 200000 },
-                    new() { Description = "Nước tăng lực hổ báo", Quantity = 1, UnitPrice = 10000 },
-                    new() { Description = "Nước tăng lực hổ báo", Quantity = 1, UnitPrice = 10000 },
+                    new() { Description = "Sân 5 (18h -19h )", Quantity = 1, UnitPrice = 200000 },
+                    new() { Description = "Nước tăng lực sting", Quantity = 1, UnitPrice = 10000 },
+                    new() { Description = "Trọng tài bắt trận đấu", Quantity = 1, UnitPrice = 150000 },
                 }
             };
 
