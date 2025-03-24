@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataAccess.DAO;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,11 @@ namespace DataAccess.Repositories.Implement
 {
     public class BookingRepository : IBookingRepository
     {
+        private readonly BookingDAO _bookingDAO;
+        public BookingRepository(BookingDAO bookingDAO)
+        {
+            _bookingDAO = bookingDAO;
+        }
         public async Task<List<BookingHistoryModel>> GetBookingHistory(int userId)
         {
             var _dbContext = new Db12353Context();
@@ -34,6 +40,16 @@ namespace DataAccess.Repositories.Implement
                                 }).AsNoTracking().ToListAsync();
 
             return result;
+        }
+
+        public async Task<List<Booking>> GetAllBookings()
+        {
+            return await _bookingDAO.GetAllBooking();
+        }
+
+        public async Task<List<BookingReportModel>> GetBookingReport()
+        {
+            return await _bookingDAO.GetBookingReport();
         }
     }
 }

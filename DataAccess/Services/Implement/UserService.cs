@@ -1,4 +1,6 @@
-﻿using DataAccess.DTOs.Request;
+﻿using BusinessObject.Models;
+using DataAccess.DTOs.Request;
+using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Interfaces;
 
@@ -21,6 +23,11 @@ namespace DataAccess.Services.Implement
         public async Task<int> UpdateUser(UpdateUserRequest request)
         {
             return await _userRepository.UpdateUser(request);
+        }
+
+        public async Task<List<UserModel>> GetAllUser()
+        {
+            return await _userRepository.GetAllUser();
         }
     }
 }

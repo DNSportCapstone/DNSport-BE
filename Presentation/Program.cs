@@ -64,6 +64,8 @@ builder.Services.AddAutoMapper(typeof(ApplicationMapper));
 // DAO
 builder.Services.AddScoped<UserDAO>();
 builder.Services.AddScoped<UserDetailDAO>();
+builder.Services.AddScoped<BookingDAO>();
+builder.Services.AddScoped<StadiumDAO>();
 
 // Mapper
 builder.Services.AddScoped<IMapper, Mapper>();
@@ -88,6 +90,8 @@ builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.Configure<MailSetting>(MaillSettings);
 builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 builder.Services.AddHttpClient<IGoMapsService, GoMapsService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IStadiumService, StadiumService>();
 
 
 var corsSettings = builder.Configuration.GetSection("CORS");
