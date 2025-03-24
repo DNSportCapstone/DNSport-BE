@@ -14,7 +14,7 @@ namespace DataAccess.DAO
         public async Task<List<User>> GetAllUsers()
         {
             using var context = new Db12353Context();
-            return await context.Users.ToListAsync();
+            return await context.Users.Include(u => u.UserDetail).ToListAsync();
         }
 
         public User GetUserById(int id)

@@ -9,5 +9,6 @@ namespace DataAccess.Repositories.Interfaces
         Task<UserModel> GetUserByEmail(string email);
         Task<UpdateUserRequest> GetUserDetails(int userId);
         Task<int> UpdateUser(UpdateUserRequest request);
+        Task<List<UserModel>> GetAllUser();
     }
 }
