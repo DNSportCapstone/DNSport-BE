@@ -1,4 +1,5 @@
 ﻿using DataAccess.DTOs.Request;
+using DataAccess.Model;
 
 namespace DataAccess.Services.Interfaces
 {
@@ -6,5 +7,6 @@ namespace DataAccess.Services.Interfaces
     {
         Task<UpdateUserRequest> GetUserDetails(int userId);
         Task<int> UpdateUser(UpdateUserRequest request);
+        Task<List<UserModel>> GetAllUser();
     }
 }

@@ -114,5 +114,11 @@ namespace DataAccess.Repositories.Implement
                 return new UserModel();
             }
         }
+        
+        public async Task<List<UserModel>> GetAllUser()
+        {
+            var users = await _userDAO.GetAllUsers();
+            return _mapper.Map<List<UserModel>>(users);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using System.Text.Json.Serialization;
 
 namespace DataAccess.Model
 {
@@ -9,6 +10,7 @@ namespace DataAccess.Model
         public string? Email { get; set; }
         public string? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
+        [JsonIgnore]
         public virtual UserDetailModel? UserDetail { get; set; }
         public virtual ICollection<BankingAccount> BankingAccounts { get; set; } = new List<BankingAccount>();
     }
