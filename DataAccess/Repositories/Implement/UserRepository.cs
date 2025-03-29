@@ -107,5 +107,16 @@ namespace DataAccess.Repositories.Implement
             var users = await _userDAO.GetAllUsers();
             return _mapper.Map<List<UserModel>>(users);
         }
+
+        public async Task<int> SetUserStatus(UserStatusRequest request)
+        {
+            var user = await _dbcontext.Users.FirstOrDefaultAsync(x => x.UserId == request.UserId);
+            if (user is not null)
+            {
+                user.Status = request.Status;
+                await _dbcontext.SaveChangesAsync();
+            }
+            return user.UserId;
+        }
     }
 }

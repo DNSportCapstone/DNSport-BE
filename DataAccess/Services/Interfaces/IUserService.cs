@@ -8,5 +8,6 @@ namespace DataAccess.Services.Interfaces
         Task<UpdateUserRequest> GetUserDetails(int userId);
         Task<int> UpdateUser(UpdateUserRequest request);
         Task<List<UserModel>> GetAllUser();
+        Task<int> SetUserStatus(UserStatusRequest request);
     }
 }

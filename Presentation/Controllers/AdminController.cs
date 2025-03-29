@@ -1,10 +1,13 @@
-﻿using DataAccess.Services.Interfaces;
+﻿using DataAccess.DTOs.Request;
+using DataAccess.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AdminController : ControllerBase
     {
         private readonly IBookingService _bookingService;
@@ -20,7 +23,7 @@ namespace Presentation.Controllers
         [HttpGet("revenue-report")]
         public async Task<IActionResult> GetRevenueReport()
         {
-            var  result = await _bookingService.GetRevenueReport();
+            var result = await _bookingService.GetRevenueReport();
             return Ok(result);
         }
 
@@ -42,6 +45,13 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetUser()
         {
             var result = await _userService.GetAllUser();
+            return Ok(result);
+        }
+
+        [HttpPost("set-user-status")]
+        public async Task<IActionResult> SetUserStatus([FromBody] UserStatusRequest request)
+        {
+            var result = await _userService.SetUserStatus(request);
             return Ok(result);
         }
     }

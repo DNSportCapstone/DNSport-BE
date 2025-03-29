@@ -17,16 +17,15 @@ namespace DataAccess.DAO
             using var context = new Db12353Context();
             var result = await (from b in context.Bookings
                                 join bf in context.BookingFields on b.BookingId equals bf.BookingId
-                                join bs in context.BookingFieldServices on bf.BookingFieldId equals bs.BookingFieldId
-                                join s in context.Services on bs.ServiceId equals s.ServiceId
-                                join c in context.ServiceCategories on s.CategoryId equals c.CategoryId
+                                join f in context.Fields on bf.BookingFieldId equals f.FieldId
+                                join s in context.Sports on f.SportId equals s.SportId
                                 join u in context.Users on b.UserId equals u.UserId
                                 select new BookingReportModel
                                 {
                                     UserId = u.UserId,
                                     UserName = u.Email,
                                     BookingTime = b.BookingDate,
-                                    Type = c.CategoryName
+                                    Type = s.SportName
                                 }).AsNoTracking().ToListAsync();
             return result;
         }
