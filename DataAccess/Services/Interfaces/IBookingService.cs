@@ -6,5 +6,6 @@ namespace DataAccess.Services.Interfaces
     {
         Task<List<RevenueReportModel>> GetRevenueReport();
         Task<List<BookingReportModel>> GetBookingReport();
+        Task<BookingInvoiceModel> GetBookingInvoice(int id);
     }
 }

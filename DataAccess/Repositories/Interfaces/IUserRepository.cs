@@ -11,5 +11,6 @@ namespace DataAccess.Repositories.Interfaces
         Task<int> UpdateUser(UpdateUserRequest request);
         Task<UserModel> GetUserById(int userId);
         Task<List<UserModel>> GetAllUser();
+        Task<UserModel> GetUserByBookingId(int bookingId);
     }
 }

@@ -10,15 +10,18 @@ namespace DataAccess.Services.Implement
     public class InvoiceService : IInvoiceService
     {
         private readonly IUserRepository _iUserRepository;
-        public InvoiceService(IUserRepository iUserRepository)
+        private readonly IBookingService _iBookingService;
+        public InvoiceService(IUserRepository iUserRepository, IBookingService iBookingService)
         {
             QuestPDF.Settings.License = LicenseType.Community;
             _iUserRepository = iUserRepository;
+            _iBookingService = iBookingService;
         }
 
         public async Task<byte[]> GeneratePdf(int bookingId)
         {
-            var user = await _iUserRepository.GetUserById(bookingId);
+            var user = await _iUserRepository.GetUserByBookingId(bookingId);
+            var booking = await _iBookingService.GetBookingInvoice(bookingId);
             var invoice = new InvoiceModel
             {
                 Id = user.UserId,
@@ -27,13 +30,7 @@ namespace DataAccess.Services.Implement
                 PhoneNumber = user.UserDetail?.PhoneNumber ?? "N/A",
                 Address = user.UserDetail?.Address ?? "N/A",
                 Date = DateTime.Now,
-
-                Items = new List<InvoiceItem>
-                {
-                    new() { Description = "Sân 5 (18h -19h )", Quantity = 1, UnitPrice = 200000 },
-                    new() { Description = "Nước tăng lực sting", Quantity = 1, UnitPrice = 10000 },
-                    new() { Description = "Trọng tài bắt trận đấu", Quantity = 1, UnitPrice = 150000 },
-                }
+                Items = booking.ItemBooking.Concat(booking.ItemService).ToList()
             };
 
             var pdfDocument = Document.Create(container =>

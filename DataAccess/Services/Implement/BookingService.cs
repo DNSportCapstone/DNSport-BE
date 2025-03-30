@@ -62,5 +62,12 @@ namespace DataAccess.Services.Implement
             int range = (DateTime.Today - start).Days;
             return start.AddDays(gen.Next(range));
         }
+
+        public async Task<BookingInvoiceModel> GetBookingInvoice(int id)
+        {
+            var result = await _bookingRepository.GetBookingInvoice(id);
+
+            return result;
+        }
     }
 }

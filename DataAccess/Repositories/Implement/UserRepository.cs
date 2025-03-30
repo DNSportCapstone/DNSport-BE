@@ -120,5 +120,16 @@ namespace DataAccess.Repositories.Implement
             var users = await _userDAO.GetAllUsers();
             return _mapper.Map<List<UserModel>>(users);
         }
+
+        public async Task<UserModel> GetUserByBookingId(int bookingId)
+        {
+            var booking = await _dbcontext.Bookings.FirstOrDefaultAsync(x => x.BookingId == bookingId);
+            var user = await _dbcontext.Users
+                                       .Include(u => u.UserDetail)
+                                       .AsNoTracking()
+                                       .FirstOrDefaultAsync(c => c.UserId == booking.UserId);
+           
+            return _mapper.Map<UserModel>(user);
+        }
     }
 }
