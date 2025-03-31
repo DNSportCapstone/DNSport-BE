@@ -13,6 +13,10 @@ public partial class Refund
 
     public decimal? RefundAmount { get; set; }
 
+    public string? Status { get; set; }
+
+    public DateTime? Time { get; set; }
+
     public virtual Payment? Payment { get; set; }
 
     public virtual User? User { get; set; }

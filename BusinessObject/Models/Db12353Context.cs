@@ -267,6 +267,8 @@ public partial class Db12353Context : DbContext
             entity.ToTable("Refund");
 
             entity.Property(e => e.RefundAmount).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.Time).HasColumnType("datetime");
 
             entity.HasOne(d => d.Payment).WithMany(p => p.Refunds)
                 .HasForeignKey(d => d.PaymentId)
@@ -391,6 +393,7 @@ public partial class Db12353Context : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.ReceiveNotification).HasDefaultValue(false);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)

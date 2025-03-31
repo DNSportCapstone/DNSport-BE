@@ -1,4 +1,5 @@
-﻿using BusinessObject.Models;
+﻿using AutoMapper;
+using BusinessObject.Models;
 using DataAccess.DTOs.Response;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
@@ -9,7 +10,13 @@ namespace DataAccess.Repositories.Implement
 {
     public class FieldRepository : IFieldRepository
     {
-        private Db12353Context _dbcontext = new();
+        private readonly Db12353Context _dbcontext = new();
+        private readonly IMapper _mapper;
+        public FieldRepository(Db12353Context dbcontext, IMapper mapper)
+        {
+            _dbcontext = dbcontext;
+            _mapper = mapper;
+        }
         public async Task<List<FieldHomeModel>> GetFieldHomeData()
         {
             var result = await (from f in _dbcontext.Fields
@@ -38,7 +45,7 @@ namespace DataAccess.Repositories.Implement
             await _dbcontext.Fields.AddAsync(field);
             await _dbcontext.SaveChangesAsync();
             return field.FieldId;
-        }   
+        }
         public async Task<Field?> GetFieldByIdAsync(int fieldId)
         {
             return await _dbcontext.Fields.FindAsync(fieldId);
@@ -70,6 +77,32 @@ namespace DataAccess.Repositories.Implement
             await AddImagesToFieldAsync(fieldId, imageUrls); // Thêm ảnh mới
         }
 
-
+        public async Task<List<FieldModel>> GetFieldsByStadiumId(int stadiumId)
+        {
+            try
+            {
+                var fields = await _dbcontext.Fields
+                            .Where(f => f.StadiumId == stadiumId)
+                            .Select(f => new FieldModel
+                            {
+                                FieldId = f.FieldId,
+                                Description = f.Description ?? string.Empty,
+                                BookingFields = f.BookingFields.Select(bf => new BookingFieldModel
+                                {
+                                    BookingFieldId = bf.BookingFieldId,
+                                    StartTime = bf.StartTime,
+                                    EndTime = bf.EndTime,
+                                    Price = bf.Price,
+                                    Date = bf.Date
+                                }).ToList()
+                            })
+                            .ToListAsync();
+                return fields;
+            }
+            catch
+            {
+                return new List<FieldModel>();
+            }
+        }
     }
 }
