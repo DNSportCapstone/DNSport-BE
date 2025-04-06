@@ -1,5 +1,6 @@
-﻿// DataAccess/Repositories/Implement/RefundRepository.cs
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
+using DataAccess.DTOs.Request;
+using DataAccess.DTOs.Response;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ namespace DataAccess.Repositories.Implement
 
         public async Task<IEnumerable<RefundModel>> GetAllRefundsAsync()
         {
+           
             var refunds = await _context.Refunds
                 .Include(r => r.User)
                     .ThenInclude(u => u.UserDetail)
@@ -84,7 +86,6 @@ namespace DataAccess.Repositories.Implement
             return DateTime.Now < earliestStartTime;
         }
 
-        // DataAccess/Repositories/Implement/RefundRepository.cs
         public async Task<RefundResponseModel> CreateRefundRequestAsync(RefundRequestModel refundRequest)
         {
             var booking = await _context.Bookings
@@ -92,27 +93,37 @@ namespace DataAccess.Repositories.Implement
                 .Include(b => b.BookingFields)
                 .FirstOrDefaultAsync(b => b.BookingId == refundRequest.BookingId);
 
+            var response = new RefundResponseModel();
+
             if (booking == null)
             {
-                throw new Exception("Booking không tồn tại");
+                response.Error = "NOT_FOUND";
+                response.Message = "Booking không tồn tại";
+                return response;
             }
 
             if (booking.Status != "Success")
             {
-                throw new Exception("Booking chưa được thanh toán hoặc không hợp lệ");
+                response.Error = "INVALID";
+                response.Message = "Booking chưa được thanh toán hoặc không hợp lệ";
+                return response;
             }
 
             var latestPayment = booking.Payments?.OrderByDescending(p => p.PaymentTime).FirstOrDefault();
             if (latestPayment == null)
             {
-                throw new Exception("Booking chưa có thanh toán để hoàn tiền");
+                response.Error = "NO_PAYMENT";
+                response.Message = "Booking chưa có thanh toán để hoàn tiền";
+                return response;
             }
 
             var existingRefund = await _context.Refunds
                 .AnyAsync(r => r.PaymentId == latestPayment.PaymentId && r.Status == "Processing");
             if (existingRefund)
             {
-                throw new Exception("Booking này đã có yêu cầu refund đang xử lý");
+                response.Error = "DUPLICATE";
+                response.Message = "Booking này đã có yêu cầu refund đang xử lý";
+                return response;
             }
 
             var earliestStartTime = booking.BookingFields.Min(bf => bf.StartTime);
@@ -128,26 +139,28 @@ namespace DataAccess.Repositories.Implement
             {
                 var hours = (int)timeRemaining.Value.TotalHours;
                 var minutes = (int)timeRemaining.Value.Minutes;
-                timeRemainingFormatted = $"{hours} giờ ${minutes} phút";
+                timeRemainingFormatted = $"{hours} giờ {minutes} phút";
                 timeRemainingInSeconds = timeRemaining.Value.TotalSeconds;
             }
 
             decimal refundPercentage;
             if (timeRemaining.Value.TotalHours >= 24)
             {
-                refundPercentage = 1.0m; // 100%
+                refundPercentage = 1.0m;
             }
             else if (timeRemaining.Value.TotalHours >= 12 && timeRemaining.Value.TotalHours < 24)
             {
-                refundPercentage = 0.7m; // 70%
+                refundPercentage = 0.7m;
             }
             else if (timeRemaining.Value.TotalHours >= 6 && timeRemaining.Value.TotalHours < 12)
             {
-                refundPercentage = 0.5m; // 50%
+                refundPercentage = 0.5m;
             }
-            else // < 6 giờ
+            else
             {
-                throw new Exception("Không thể yêu cầu refund: Thời gian còn lại dưới 6 giờ, không được hoàn tiền");
+                response.Error = "TIME_EXPIRED";
+                response.Message = "Không thể yêu cầu refund: Thời gian còn lại dưới 6 giờ";
+                return response;
             }
 
             var totalPrice = booking.TotalPrice ?? 0m;
@@ -185,15 +198,16 @@ namespace DataAccess.Repositories.Implement
             await _context.Refunds.AddAsync(refund);
             await _context.SaveChangesAsync();
 
-            return new RefundResponseModel
-            {
-                RefundId = refund.RefundId,
-                RefundAmount = refundAmount,
-                TimeRemaining = timeRemainingFormatted,
-                TimeRemainingInSeconds = timeRemainingInSeconds,
-                RefundPercentage = Math.Round(refundPercentage * 100, 2),
-                Bank = refundRequest.Bank
-            };
+            response.RefundId = refund.RefundId;
+            response.RefundAmount = refundAmount;
+            response.TimeRemaining = timeRemainingFormatted;
+            response.TimeRemainingInSeconds = timeRemainingInSeconds;
+            response.RefundPercentage = Math.Round(refundPercentage * 100, 2);
+            response.Bank = refundRequest.Bank;
+            response.Message = "Refund request submitted successfully";
+            response.Error = null;
+
+            return response;
         }
 
         public async Task<RefundResponseModel> PreviewRefundRequestAsync(int bookingId)
@@ -203,39 +217,51 @@ namespace DataAccess.Repositories.Implement
                 .Include(b => b.BookingFields)
                 .FirstOrDefaultAsync(b => b.BookingId == bookingId);
 
+            var response = new RefundResponseModel();
+
             if (booking == null)
             {
-                throw new Exception("Booking không tồn tại");
+                response.Error = "NOT_FOUND";
+                response.Message = "Booking không tồn tại";
+                return response;
             }
 
             if (booking.Status != "Success")
             {
-                throw new Exception("Booking chưa được thanh toán hoặc không hợp lệ");
+                response.Error = "INVALID";
+                response.Message = "Booking chưa được thanh toán hoặc không hợp lệ";
+                return response;
             }
 
             var latestPayment = booking.Payments?.OrderByDescending(p => p.PaymentTime).FirstOrDefault();
             if (latestPayment == null)
             {
-                throw new Exception("Booking chưa có thanh toán để hoàn tiền");
+                response.Error = "NO_PAYMENT";
+                response.Message = "Booking chưa có thanh toán để hoàn tiền";
+                return response;
             }
 
             var existingRefund = await _context.Refunds
                 .AnyAsync(r => r.PaymentId == latestPayment.PaymentId && r.Status == "Processing");
             if (existingRefund)
             {
-                throw new Exception("Booking này đã có yêu cầu refund đang xử lý");
+                response.Error = "DUPLICATE";
+                response.Message = "Booking này đã có yêu cầu refund đang xử lý";
+                return response;
             }
 
             if (!booking.BookingFields.Any())
             {
-                throw new Exception("Booking không có thông tin sân, không thể tính thời gian hoàn tiền");
+                response.Error = "NO_FIELDS";
+                response.Message = "Booking không có thông tin sân";
+                return response;
             }
 
             var earliestStartTime = booking.BookingFields.Min(bf => bf.StartTime);
             var timeRemaining = earliestStartTime - DateTime.Now;
 
             string timeRemainingFormatted;
-            double timeRemainingInSeconds; 
+            double timeRemainingInSeconds;
             if (timeRemaining.Value.TotalHours < 0)
             {
                 timeRemainingFormatted = "Hết thời gian";
@@ -246,54 +272,57 @@ namespace DataAccess.Repositories.Implement
                 var hours = (int)timeRemaining.Value.TotalHours;
                 var minutes = (int)timeRemaining.Value.Minutes;
                 timeRemainingFormatted = $"{hours} giờ {minutes} phút";
-                timeRemainingInSeconds = timeRemaining.Value.TotalSeconds; // Tính thời gian còn lại bằng giây
+                timeRemainingInSeconds = timeRemaining.Value.TotalSeconds;
             }
 
             decimal refundPercentage;
             if (timeRemaining.Value.TotalHours < 0)
             {
-                throw new Exception("Không thể yêu cầu refund: Thời gian đã hết");
+                response.Error = "TIME_EXPIRED";
+                response.Message = "Không thể yêu cầu refund: Thời gian đã hết";
+                return response;
             }
             else if (timeRemaining.Value.TotalHours >= 24)
             {
-                refundPercentage = 1.0m; // 100%
+                refundPercentage = 1.0m;
             }
             else if (timeRemaining.Value.TotalHours >= 12 && timeRemaining.Value.TotalHours < 24)
             {
-                refundPercentage = 0.7m; // 70%
+                refundPercentage = 0.7m;
             }
             else if (timeRemaining.Value.TotalHours >= 6 && timeRemaining.Value.TotalHours < 12)
             {
-                refundPercentage = 0.5m; // 50%
+                refundPercentage = 0.5m;
             }
-            else // < 6 giờ
+            else
             {
-                throw new Exception("Không thể yêu cầu refund: Thời gian còn lại dưới 6 giờ, không được hoàn tiền");
+                response.Error = "TIME_EXPIRED";
+                response.Message = "Không thể yêu cầu refund: Thời gian còn lại dưới 6 giờ";
+                return response;
             }
 
             var totalPrice = booking.TotalPrice ?? 0m;
             var refundAmount = totalPrice * refundPercentage;
 
-            return new RefundResponseModel
-            {
-                RefundId = 0,
-                RefundAmount = refundAmount,
-                TimeRemaining = timeRemainingFormatted,
-                TimeRemainingInSeconds = timeRemainingInSeconds, 
-                RefundPercentage = Math.Round(refundPercentage * 100, 2),
-                Bank = "",
-            };
+            response.RefundId = 0;
+            response.RefundAmount = refundAmount;
+            response.TimeRemaining = timeRemainingFormatted;
+            response.TimeRemainingInSeconds = timeRemainingInSeconds;
+            response.RefundPercentage = Math.Round(refundPercentage * 100, 2);
+            response.Bank = "";
+            response.Message = "Preview refund successful";
+            response.Error = null;
+
+            return response;
         }
+
         public async Task UpdateRefundStatusAsync(int refundId, string status)
         {
             var refund = await _context.Refunds.FindAsync(refundId);
-            if (refund != null)
+            if (refund != null && refund.Status == "Processing" && status == "Completed")
             {
-                if (refund.Status == "Processing" && status == "Completed")
-                {
-                    refund.Status = status;
-                    _context.Refunds.Update(refund);
-                }
+                refund.Status = status;
+                _context.Refunds.Update(refund);
             }
         }
 

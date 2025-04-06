@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Model
+namespace DataAccess.DTOs.Response
 {
-    public class RefundResponseModel
+    public class RefundResponseModel : Request
     {
         public int RefundId { get; set; }
         public decimal RefundAmount { get; set; }

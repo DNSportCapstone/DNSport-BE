@@ -1,6 +1,9 @@
-﻿using DataAccess.Model;
+﻿using DataAccess.DTOs.Request;
+using DataAccess.DTOs.Response;
+using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Presentation.Controllers
 {
@@ -24,10 +27,16 @@ namespace Presentation.Controllers
             {
                 refunds = refunds.Where(r => r.UserId == userId.Value);
             }
+
             if (refunds == null || !refunds.Any())
             {
-                return NotFound(new { message = "Không có refund nào được tìm thấy" });
+                return Ok(new RefundResponseModel
+                {
+                    Error = "NOT_FOUND",
+                    Message = "Không có refund nào được tìm thấy"
+                });
             }
+
             return Ok(refunds);
         }
 
@@ -38,64 +47,53 @@ namespace Presentation.Controllers
             var refund = await _refundRepository.GetRefundByIdAsync(id);
             if (refund == null)
             {
-                return NotFound(new { message = $"Không tìm thấy refund với ID {id}" });
+                return Ok(new RefundResponseModel
+                {
+                    Error = "NOT_FOUND",
+                    Message = $"Không tìm thấy refund với ID {id}"
+                });
             }
+
             return Ok(refund);
         }
 
         // POST: api/Refund/request
         [HttpPost("request")]
-        public async Task<IActionResult> RequestRefund([FromBody] RefundRequestModel refundRequest)
+        public async Task<IActionResult> CreateRefundRequest([FromBody] RefundRequestModel refundRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                var refundResponse = await _refundRepository.CreateRefundRequestAsync(refundRequest);
-                return Ok(new
+                return BadRequest(new RefundResponseModel
                 {
-                    message = "Refund request submitted successfully",
-                    refundId = refundResponse.RefundId,
-                    refundAmount = refundResponse.RefundAmount,
-                    timeRemaining = refundResponse.TimeRemaining,
-                    refundPercentage = refundResponse.RefundPercentage,
-                    bank = refundResponse.Bank
+                    Error = "INVALID",
+                    Message = "Dữ liệu đầu vào không hợp lệ"
                 });
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+
+            var response = await _refundRepository.CreateRefundRequestAsync(refundRequest);
+            return Ok(response);
         }
 
         // GET: api/Refund/preview/{bookingId}
         [HttpGet("preview/{bookingId}")]
         public async Task<IActionResult> PreviewRefund(int bookingId)
         {
-            try
-            {
-                var result = await _refundRepository.PreviewRefundRequestAsync(bookingId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message }); 
-            }
-
+            var response = await _refundRepository.PreviewRefundRequestAsync(bookingId);
+            return Ok(response);
         }
 
-
-        // DELETE: api/Refund/5
+        // DELETE: api/Refund/{refundId}
         [HttpDelete("{refundId}")]
         public async Task<IActionResult> DeleteRefund(int refundId)
         {
             var refund = await _refundRepository.GetRefundByIdAsync(refundId);
             if (refund == null)
             {
-                return NotFound(new { message = $"Không tìm thấy refund với ID {refundId}" });
+                return Ok(new RefundResponseModel
+                {
+                    Error = "NOT_FOUND",
+                    Message = $"Không tìm thấy refund với ID {refundId}"
+                });
             }
 
             await _refundRepository.DeleteRefundAsync(refundId);
@@ -103,44 +101,60 @@ namespace Presentation.Controllers
 
             if (result)
             {
-                return Ok(new { message = "Refund request deleted successfully" });
+                return Ok(new RefundResponseModel
+                {
+                    Message = "Refund request deleted successfully",
+                    Error = null
+                });
             }
 
-            return StatusCode(500, new { message = "Đã xảy ra lỗi khi xóa refund" });
+            return StatusCode(500, new RefundResponseModel
+            {
+                Error = "INTERNAL_ERROR",
+                Message = "Đã xảy ra lỗi khi xóa refund"
+            });
         }
 
         // PUT: api/Refund/complete/{refundId}
         [HttpPut("complete/{refundId}")]
         public async Task<IActionResult> CompleteRefund(int refundId)
         {
-            try
+            var refund = await _refundRepository.GetRefundByIdAsync(refundId);
+            if (refund == null)
             {
-                var refund = await _refundRepository.GetRefundByIdAsync(refundId);
-                if (refund == null)
+                return Ok(new RefundResponseModel
                 {
-                    return NotFound(new { message = $"Không tìm thấy refund với ID {refundId}" });
-                }
-
-                if (refund.Status != "Processing")
-                {
-                    return BadRequest(new { message = "Chỉ có thể hoàn tất refund đang ở trạng thái Processing" });
-                }
-
-                refund.Status = "Completed"; // Cập nhật trạng thái
-                await _refundRepository.UpdateRefundStatusAsync(refundId, "Completed");
-                var result = await _refundRepository.SaveChangesAsync();
-
-                if (result)
-                {
-                    return Ok(new { message = $"Refund với ID {refundId} đã được hoàn tất" });
-                }
-
-                return StatusCode(500, new { message = "Đã xảy ra lỗi khi cập nhật trạng thái refund" });
+                    Error = "NOT_FOUND",
+                    Message = $"Không tìm thấy refund với ID {refundId}"
+                });
             }
-            catch (Exception ex)
+
+            if (refund.Status != "Processing")
             {
-                return StatusCode(500, new { message = $"Lỗi: {ex.Message}" });
+                return Ok(new RefundResponseModel
+                {
+                    Error = "INVALID",
+                    Message = "Chỉ có thể hoàn tất refund đang ở trạng thái Processing"
+                });
             }
+
+            await _refundRepository.UpdateRefundStatusAsync(refundId, "Completed");
+            var result = await _refundRepository.SaveChangesAsync();
+
+            if (result)
+            {
+                return Ok(new RefundResponseModel
+                {
+                    Message = $"Refund với ID {refundId} đã được hoàn tất",
+                    Error = null
+                });
+            }
+
+            return StatusCode(500, new RefundResponseModel
+            {
+                Error = "INTERNAL_ERROR",
+                Message = "Đã xảy ra lỗi khi cập nhật trạng thái refund"
+            });
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using DataAccess.Model;
+﻿using DataAccess.DTOs.Request;
+using DataAccess.DTOs.Response;
+using DataAccess.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
