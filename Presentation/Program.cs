@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Services.Interfaces;
 using System.Text;
 using VNPAY.NET;
 
@@ -80,6 +81,7 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddSingleton<IVnpay, Vnpay>();
 builder.Services.AddTransient<VnpayPayment>();
 builder.Services.AddScoped<IFieldService, FieldService>();
+builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 
 
 // Service
@@ -92,6 +94,7 @@ builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 builder.Services.AddHttpClient<IGoMapsService, GoMapsService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStadiumService, StadiumService>();
+builder.Services.AddScoped<IVoucherService, VoucherService>();
 
 
 var corsSettings = builder.Configuration.GetSection("CORS");
