@@ -13,7 +13,7 @@ namespace DataAccess.DTOs.Response
         public decimal DayPrice { get; set; }
         public decimal NightPrice { get; set; }
         public string Status { get; set; } = "pending";
-        public string ImageUrl { get; set; } = string.Empty;
+        public List<string> ImageUrls { get; set; }
         public string Message { get; set; } = "Field updated successfully.";
     }
 
