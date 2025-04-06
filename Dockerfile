@@ -2,15 +2,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy file csproj và restore
-COPY Presentation/Presentation.csproj ./Presentation/
+# Copy toàn bộ thư mục chứa project
+COPY Presentation/ ./Presentation/
+
+# Làm việc trong thư mục project
 WORKDIR /src/Presentation
+
+# Restore package
 RUN dotnet restore
 
-# Copy toàn bộ source code
-COPY . .
-
-# Xuất bản ứng dụng (publish)
+# Build & publish app
 RUN dotnet publish Presentation.csproj -c Release -o /app/out
 
 # Giai đoạn runtime
