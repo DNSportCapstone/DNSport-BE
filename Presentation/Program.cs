@@ -61,6 +61,7 @@ builder.Services.AddSwaggerGen(option =>
 
 builder.Services.AddAutoMapper(typeof(ApplicationMapper));
 
+
 // DAO
 builder.Services.AddScoped<UserDAO>();
 builder.Services.AddScoped<UserDetailDAO>();
@@ -81,6 +82,7 @@ builder.Services.AddSingleton<IVnpay, Vnpay>();
 builder.Services.AddTransient<VnpayPayment>();
 builder.Services.AddScoped<IFieldService, FieldService>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
+builder.Services.AddScoped<IRefundRepository, RefundRepository>();
 
 
 // Service
@@ -131,12 +133,12 @@ var app = builder.Build();
 
 
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DNSport API V1");
+    c.RoutePrefix = string.Empty;
+});
 
 app.UseHttpsRedirection();
 

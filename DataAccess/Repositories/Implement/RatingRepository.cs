@@ -10,14 +10,6 @@ namespace DataAccess.Repositories.Implement
     {
         private readonly Db12353Context _context;
 
-        private static HashSet<int> _reportedComments = new HashSet<int>(); // Lưu comment vi phạm trong bộ nhớ
-
-        //Danh sách từ cấm
-        private readonly List<string> _bannedWords = new List<string>
-        {
-            "chửi", "tục", "lừa đảo", "scam", "fake"
-        };
-
         public RatingRepository(Db12353Context context)
         {
             _context = context;
@@ -98,42 +90,21 @@ namespace DataAccess.Repositories.Implement
                 .FirstOrDefaultAsync(r => r.BookingId == bookingId && r.UserId == userId);
         }
 
-        public async Task<bool> DetectAndReportCommentAsync(int ratingId, string comment)
-        {
-            var rating = await _context.Ratings.FindAsync(ratingId);
-            if (rating == null)
-            {
-                throw new Exception("Rating not found.");
-            }
 
-            // Kiểm tra chứa từ cấm không
-            if (_bannedWords.Any(word => Regex.IsMatch(comment, $"\\b{word}\\b", RegexOptions.IgnoreCase)))
-            {
-                _reportedComments.Add(ratingId); // Tự động ẩn comment
-                return true;
-            }
-
-            return false;
-        }
-
-        //Lấy danh sách comment bị ẩn
-        public async Task<List<int>> GetReportedCommentsAsync()
-        {
-            return _reportedComments.ToList();
-        }
 
         //Lấy danh sách comment của một sân
         public async Task<List<Rating>> GetCommentsByFieldIdAsync(int fieldId)
         {
-            return await _context.Ratings
-                .Where(r => _context.Bookings
-                    .Any(b => b.BookingId == r.BookingId &&
-                              _context.BookingFields
-                                  .Any(bf => bf.BookingId == b.BookingId && bf.FieldId == fieldId)) &&
-                            !_reportedComments.Contains(r.RatingId)) // Ẩn comment vi phạm
-                .OrderByDescending(r => r.Time)
-                .ToListAsync();
+            var comments = await (from r in _context.Ratings
+                                  join b in _context.Bookings on r.BookingId equals b.BookingId
+                                  join bf in _context.BookingFields on b.BookingId equals bf.BookingId
+                                  where bf.FieldId == fieldId
+                                  orderby r.Time descending
+                                  select r).ToListAsync();
+
+            return comments;
         }
+
 
     }
 }
