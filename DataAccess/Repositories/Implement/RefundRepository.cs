@@ -22,25 +22,30 @@ namespace DataAccess.Repositories.Implement
 
         public async Task<IEnumerable<RefundModel>> GetAllRefundsAsync()
         {
-           
-            var refunds = await _context.Refunds
+
+            var refunds = await _context.Refunds.AsNoTracking()
                 .Include(r => r.User)
                     .ThenInclude(u => u.UserDetail)
                 .Include(r => r.User)
                     .ThenInclude(u => u.BankingAccounts)
                 .Include(r => r.Payment)
+                    .ThenInclude(p => p.Booking)
                 .ToListAsync();
 
             return refunds.Select(r => new RefundModel
             {
                 RefundId = r.RefundId,
+                BookingId = r.Payment?.Booking?.BookingId,
                 UserId = r.UserId ?? 0,
                 PaymentId = r.PaymentId ?? 0,
                 RefundAmount = r.RefundAmount ?? 0,
                 Status = r.Status,
                 Time = r.Time ?? DateTime.MinValue,
                 UserName = r.User?.UserDetail?.FullName ?? "",
-                BankAccountNumber = r.User?.BankingAccounts.FirstOrDefault()?.Account ?? ""
+                UserEmail = r.User?.Email,
+                BankAccountNumber = r.User?.BankingAccounts.FirstOrDefault()?.Account ?? "",
+                BookingDate = r.Payment?.Booking?.BookingDate,
+                TotalAmount = r.Payment?.Booking?.TotalPrice
             });
         }
 

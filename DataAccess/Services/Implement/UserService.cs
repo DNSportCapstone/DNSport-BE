@@ -29,5 +29,10 @@ namespace DataAccess.Services.Implement
         {
             return await _userRepository.GetAllUser();
         }
+
+        public async Task<int> SetUserStatus(UserStatusRequest request)
+        {
+            return await _userRepository.SetUserStatus(request);
+        }
     }
 }

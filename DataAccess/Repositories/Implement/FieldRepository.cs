@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
+using DataAccess.DTOs.Request;
 using DataAccess.DTOs.Response;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
@@ -103,6 +104,18 @@ namespace DataAccess.Repositories.Implement
             {
                 return new List<FieldModel>();
             }
+        }
+
+        public async Task<int> SetFieldStatus(FieldStatusRequest request)
+        {
+            var field = await _dbcontext.Fields.FirstOrDefaultAsync(f => f.FieldId == request.FieldId);
+            if (field == null)
+            {
+                return 0;
+            }
+            field.Status = request.Status;
+            await _dbcontext.SaveChangesAsync();
+            return 1;
         }
     }
 }

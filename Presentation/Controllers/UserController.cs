@@ -32,6 +32,12 @@ namespace Presentation.Controllers
             return Ok(result);
         }
 
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllUser()
+        {
+            var result = await _userService.GetAllUser();
+            return Ok(result);
+        }
 
 
         //test send mail

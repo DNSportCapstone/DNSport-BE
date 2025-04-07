@@ -8,5 +8,6 @@ namespace DataAccess.Repositories.Interfaces
         Task<List<BookingHistoryModel>> GetBookingHistory(int userId);
         Task<List<Booking>> GetAllBookings();
         Task<List<BookingReportModel>> GetBookingReport();
+        Task<BookingInvoiceModel> GetBookingInvoice(int bookingId);
     }
 }
