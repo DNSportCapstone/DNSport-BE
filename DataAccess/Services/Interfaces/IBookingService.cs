@@ -8,5 +8,6 @@ namespace DataAccess.Services.Interfaces
         Task<List<BookingReportModel>> GetBookingReport();
 
         Task<List<DenounceModel>> GetAllDenounce();
+        Task<BookingInvoiceModel> GetBookingInvoice(int id);
     }
 }

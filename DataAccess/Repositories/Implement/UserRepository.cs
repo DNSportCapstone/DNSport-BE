@@ -57,10 +57,10 @@ namespace DataAccess.Repositories.Implement
             var result = await (from u in _dbcontext.Users
                                 join d in _dbcontext.UserDetails
                                 on u.UserId equals d.UserId into userDetail
-            from ud in userDetail.DefaultIfEmpty()
+                                from ud in userDetail.DefaultIfEmpty()
                                 join b in _dbcontext.BankingAccounts
                                 on u.UserId equals b.UserId into bankingAccount
-            from ba in bankingAccount.DefaultIfEmpty()
+                                from ba in bankingAccount.DefaultIfEmpty()
                                 join r in _dbcontext.Roles
                                 on u.RoleId equals r.RoleId
                                 where u.UserId == userId
@@ -102,6 +102,19 @@ namespace DataAccess.Repositories.Implement
             return user.UserId;
         }
 
+        public async Task<UserModel> GetUserById(int userId)
+        {
+            try
+            {
+                var user = await _userDAO.GetUserById(userId);
+                return _mapper.Map<UserModel>(user);
+            }
+            catch
+            {
+                return new UserModel();
+            }
+        }
+
         public async Task<List<UserModel>> GetAllUser()
         {
             var users = await _userDAO.GetAllUsers();
@@ -117,6 +130,16 @@ namespace DataAccess.Repositories.Implement
                 await _dbcontext.SaveChangesAsync();
             }
             return user.UserId;
+        }
+        public async Task<UserModel> GetUserByBookingId(int bookingId)
+        {
+            var booking = await _dbcontext.Bookings.FirstOrDefaultAsync(x => x.BookingId == bookingId);
+            var user = await _dbcontext.Users
+                                       .Include(u => u.UserDetail)
+                                       .AsNoTracking()
+                                       .FirstOrDefaultAsync(c => c.UserId == booking.UserId);
+
+            return _mapper.Map<UserModel>(user);
         }
     }
 }

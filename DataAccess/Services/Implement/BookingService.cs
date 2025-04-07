@@ -37,5 +37,12 @@ namespace DataAccess.Services.Implement
         {
             throw new NotImplementedException();
         }
+
+        public async Task<BookingInvoiceModel> GetBookingInvoice(int id)
+        {
+            var result = await _bookingRepository.GetBookingInvoice(id);
+
+            return result;
+        }
     }
 }

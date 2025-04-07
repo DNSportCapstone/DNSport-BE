@@ -87,5 +87,12 @@ namespace Presentation.Controllers
             var result = await _voucherService.GetAllVouchers();
             return Ok(result);
         }
+
+        [HttpPost("create-or-update-voucher")]
+        public async Task<IActionResult> CreateOrUpdateVoucher([FromBody] CreateVoucherRequest request)
+        {
+            var result = await _voucherService.CreateOrUpdateVoucher(request);
+            return Ok(result);
+        }
     }
 }

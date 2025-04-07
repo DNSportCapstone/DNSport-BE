@@ -23,6 +23,9 @@ builder.Services.AddControllers()
     .AddOData(opt => opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(int.MaxValue));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IFieldRepository, FieldRepository>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 var MaillSettings = configuration.GetSection("MaillSettings");
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<IFieldRepository,FieldRepository>();
@@ -130,6 +133,7 @@ builder.Services.AddDbContext<Db12353Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 
 
