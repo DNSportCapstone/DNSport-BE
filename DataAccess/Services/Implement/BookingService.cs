@@ -32,5 +32,10 @@ namespace DataAccess.Services.Implement
             var result = await _bookingRepository.GetBookingReport();
             return result;
         }
+
+        public Task<List<DenounceModel>> GetAllDenounce()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

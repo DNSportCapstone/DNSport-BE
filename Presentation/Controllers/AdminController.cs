@@ -13,11 +13,16 @@ namespace Presentation.Controllers
         private readonly IBookingService _bookingService;
         private readonly IUserService _userService;
         private readonly IStadiumService _stadiumService;
-        public AdminController(IBookingService bookingService, IUserService userService, IStadiumService stadiumService)
+        private readonly IFieldService _fieldService;
+        private readonly IVoucherService _voucherService;
+
+        public AdminController(IBookingService bookingService, IUserService userService, IStadiumService stadiumService, IFieldService fieldService, IVoucherService voucherService)
         {
             _bookingService = bookingService;
             _userService = userService;
             _stadiumService = stadiumService;
+            _fieldService = fieldService;
+            _voucherService = voucherService;
         }
 
         [HttpGet("revenue-report")]
@@ -52,6 +57,34 @@ namespace Presentation.Controllers
         public async Task<IActionResult> SetUserStatus([FromBody] UserStatusRequest request)
         {
             var result = await _userService.SetUserStatus(request);
+            return Ok(result);
+        }
+
+        [HttpGet("denounce-report")]
+        public async Task<IActionResult> GetDenounceReport()
+        {
+            var result = await _bookingService.GetAllDenounce();
+            return Ok(result);
+        }
+
+        [HttpPost("set-field-status")]
+        public async Task<IActionResult> SetFieldStatus([FromBody] FieldStatusRequest request)
+        {
+            var result = await _fieldService.SetFieldStatus(request);
+            return Ok(result);
+        }
+
+        [HttpPost("create-voucher")]
+        public async Task<IActionResult> CreateVoucher([FromBody] CreateVoucherRequest request)
+        {
+            var result = await _voucherService.CreateOrUpdateVoucher(request);
+            return Ok(result);
+        }
+
+        [HttpGet("get-voucher")]
+        public async Task<IActionResult> GetVoucher()
+        {
+            var result = await _voucherService.GetAllVouchers();
             return Ok(result);
         }
     }
