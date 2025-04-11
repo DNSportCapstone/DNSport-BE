@@ -38,7 +38,8 @@ namespace DataAccess.Repositories.Implement
                                     FieldId = bf.FieldId,
                                     StartTime = bf.StartTime,
                                     EndTime = bf.EndTime,
-                                    StadiumName = s.StadiumName
+                                    StadiumName = s.StadiumName,
+                                    Description = f.Description                                    
                                 }).AsNoTracking().ToListAsync();
 
             return result;

@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
 using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +58,7 @@ builder.Services.AddSwaggerGen(option =>
 
 builder.Services.AddAutoMapper(typeof(ApplicationMapper));
 
+
 // DAO
 builder.Services.AddScoped<UserDAO>();
 builder.Services.AddScoped<UserDetailDAO>();
@@ -73,6 +75,7 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IVnpay, Vnpay>();
 builder.Services.AddTransient<VnpayPayment>();
 builder.Services.AddScoped<IFieldService, FieldService>();
+builder.Services.AddScoped<IRefundRepository, RefundRepository>();
 
 
 // Service
