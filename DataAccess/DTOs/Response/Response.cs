@@ -6,14 +6,10 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTOs.Response
 {
-    public class Request
+    public class Response
     {
         public bool? IsError { get; set; }
         public string? Message { get; set; }
         public string? Error { get; set; }
-    }
-    public class RefundResponseModel : Request
-    {
-        public string? Id { get; set; }
     }
 }
