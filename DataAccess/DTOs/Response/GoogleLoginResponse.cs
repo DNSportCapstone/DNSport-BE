@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTOs.Response
 {
-    public class GoogleLoginResponse : Request
+    public class GoogleLoginResponse : Response
     {
         public string? AccessToken { get; set; }
     }
