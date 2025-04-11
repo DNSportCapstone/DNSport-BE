@@ -10,31 +10,32 @@ namespace DataAccess.DAO
 {
     public class UserDetailDAO
     {
+        private readonly Db12353Context _dbcontext;
+        public UserDetailDAO(Db12353Context dbcontext)
+        {
+            _dbcontext = dbcontext;
+        }
         public UserDetail GetUserDetailById(int id)
         {
-            using var context = new Db12353Context();
-            return context.UserDetails.FirstOrDefault(c => c.UserId == id) ?? new UserDetail();
+            return _dbcontext.UserDetails.FirstOrDefault(c => c.UserId == id) ?? new UserDetail();
         }
 
         public async Task InsertUserDetail(UserDetail userDetail)
         {
-            using var context = new Db12353Context();
-            context.UserDetails.Add(userDetail);
-            await context.SaveChangesAsync();
+            _dbcontext.UserDetails.Add(userDetail);
+            await _dbcontext.SaveChangesAsync();
         }
 
         public void UpdateUserDetail(UserDetail userDetail)
         {
-            using var context = new Db12353Context();
-            context.UserDetails.Update(userDetail);
-            context.SaveChanges();
+            _dbcontext.UserDetails.Update(userDetail);
+            _dbcontext.SaveChanges();
         }
 
         public void DeleteUserDetail(UserDetail userDetail)
         {
-            using var context = new Db12353Context();
-            context.UserDetails.Remove(userDetail);
-            context.SaveChanges();
+            _dbcontext.UserDetails.Remove(userDetail);
+            _dbcontext.SaveChanges();
         }
     }
 }

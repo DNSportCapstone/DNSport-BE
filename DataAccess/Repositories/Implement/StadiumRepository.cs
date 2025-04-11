@@ -12,15 +12,15 @@ namespace DataAccess.Repositories.Implement
 {
     public class StadiumRepository : IStadiumRepository
     {
-        Db12353Context _dbcontext = new Db12353Context();
         private readonly Cloudinary _cloudinary;
         private readonly StadiumDAO _stadiumDAO;
-
-        public StadiumRepository(IOptions<CloudinarySettings> config, StadiumDAO stadiumDAO)
+        private readonly Db12353Context _dbcontext;
+        public StadiumRepository(IOptions<CloudinarySettings> config, StadiumDAO stadiumDAO, Db12353Context dbcontext)
         {
             var account = new Account(config.Value.CloudName, config.Value.ApiKey, config.Value.ApiSecret);
             _cloudinary = new Cloudinary(account);
             _stadiumDAO = stadiumDAO;
+            _dbcontext = dbcontext;
         }
 
         public async Task<List<StadiumModel>> GetStadiumData()
