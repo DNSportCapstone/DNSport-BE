@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTOs.Response
 {
-    public class RefundResponseModel : Request
+    public class RefundResponseModel : Response
     {
         public int RefundId { get; set; }
         public decimal RefundAmount { get; set; }

@@ -6,10 +6,14 @@ namespace DataAccess.DAO
 {
     public class BookingDAO
     {
+        private readonly Db12353Context _dbContext;
+        public BookingDAO(Db12353Context dbcontext)
+        {
+            _dbContext = dbcontext;
+        }
         public async Task<List<Booking>> GetAllBooking()
         {
-            using var context = new Db12353Context();
-            return await context.Bookings.ToListAsync();
+            return await _dbContext.Bookings.ToListAsync();
         }
 
         public async Task<List<BookingReportModel>> GetBookingReport()

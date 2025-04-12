@@ -9,5 +9,7 @@ namespace DataAccess.Repositories.Interfaces
         Task<List<Booking>> GetAllBookings();
         Task<List<BookingReportModel>> GetBookingReport();
         Task<BookingInvoiceModel> GetBookingInvoice(int bookingId);
+        Task<int> CreateMultipleBookings(Booking booking);
+        bool UpdateBookingStatus(int bookingId, string status);
     }
 }

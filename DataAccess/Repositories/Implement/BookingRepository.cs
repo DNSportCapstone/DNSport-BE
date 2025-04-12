@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using DataAccess.DAO;
+using DataAccess.DTOs.Request;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +11,14 @@ namespace DataAccess.Repositories.Implement
     {
         private readonly BookingDAO _bookingDAO;
         private readonly Db12353Context _dbContext;
-        public BookingRepository(BookingDAO bookingDAO, Db12353Context context)
+        public BookingRepository(BookingDAO bookingDAO, Db12353Context dbcontext)
         {
             _bookingDAO = bookingDAO;
-            _dbContext = context;
+            _dbContext = dbcontext;
         }
         public async Task<List<BookingHistoryModel>> GetBookingHistory(int userId)
         {
-            var _dbContext = new Db12353Context();
-
+            var canConnect = await _dbContext.Database.CanConnectAsync();
             var result = await (from b in _dbContext.Bookings
                                 join u in _dbContext.Users
                                 on b.UserId equals u.UserId
@@ -89,6 +89,62 @@ namespace DataAccess.Repositories.Implement
                                                       .ToList()
                                  }).AsNoTracking().FirstOrDefaultAsync();
             return booking;
+        }
+
+        public async Task<int> CreateMultipleBookings(Booking booking)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                // Check slots are all exist
+                foreach (var bookingField in booking.BookingFields)
+                {
+                        var isExist = await _dbContext.BookingFields
+                            .AnyAsync(bf =>
+                                bf.FieldId == bookingField.FieldId &&
+                                bf.Date == bookingField.Date &&
+                                ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
+                                 (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
+                                 (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
+                            );
+
+                        if (isExist)
+                        {
+                            await transaction.RollbackAsync();
+                            return 0;
+                        }
+                }
+                _dbContext.Add(booking);
+                await _dbContext.SaveChangesAsync();
+                transaction.Commit();
+                return booking.BookingId;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return 0;
+            }
+        }
+        
+        public bool UpdateBookingStatus(int bookingId, string status)
+        {
+            try
+            {
+                var booking = _dbContext.Bookings.Find(bookingId);
+
+                if (booking == null)
+                {
+                    return false;
+                }
+
+                booking.Status = status;
+                _dbContext.SaveChanges();
+                return true;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
         }
     }
 }

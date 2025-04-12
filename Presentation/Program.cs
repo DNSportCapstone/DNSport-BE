@@ -16,6 +16,10 @@ using System.Text;
 using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<Db12353Context>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var configuration = builder.Configuration;
 
 // Add services to the container.
@@ -23,7 +27,6 @@ builder.Services.AddControllers()
     .AddOData(opt => opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(int.MaxValue));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IFieldRepository, FieldRepository>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 var MaillSettings = configuration.GetSection("MaillSettings");
@@ -71,9 +74,6 @@ builder.Services.AddScoped<UserDetailDAO>();
 builder.Services.AddScoped<BookingDAO>();
 builder.Services.AddScoped<StadiumDAO>();
 
-// Mapper
-builder.Services.AddScoped<IMapper, Mapper>();
-
 // Repository
 builder.Services.AddScoped<IFieldRepository,FieldRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -81,7 +81,7 @@ builder.Services.AddScoped<IUserDetailRepository, UserDetailRepository>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-builder.Services.AddSingleton<IVnpay, Vnpay>();
+builder.Services.AddScoped<IVnpay, Vnpay>();
 builder.Services.AddTransient<VnpayPayment>();
 builder.Services.AddScoped<IFieldService, FieldService>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
@@ -90,10 +90,10 @@ builder.Services.AddScoped<IRefundRepository, RefundRepository>();
 
 // Service
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+builder.Services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddScoped<IUserService,UserService>();
-builder.Services.Configure<MailSetting>(MaillSettings);
+builder.Services.Configure<MailSetting>(configuration.GetSection("MaillSettings"));
 builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 builder.Services.AddHttpClient<IGoMapsService, GoMapsService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
@@ -128,21 +128,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
-builder.Services.AddDbContext<Db12353Context>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 var app = builder.Build();
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-
-
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DNSport API V1");
-    c.RoutePrefix = string.Empty;
-});
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "DNSport API V1");
+        c.RoutePrefix = string.Empty;
+    });
+}
 
 app.UseHttpsRedirection();
 
