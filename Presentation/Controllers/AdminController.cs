@@ -94,5 +94,12 @@ namespace Presentation.Controllers
             var result = await _voucherService.CreateOrUpdateVoucher(request);
             return Ok(result);
         }
+
+        [HttpPost("set-user-role/{userId}")]
+        public async Task<IActionResult> SetUserRole(int userId, [FromBody] int role)
+        {
+            var result = await _userService.SetUserRole(userId, role);
+            return Ok(result);
+        }
     }
 }

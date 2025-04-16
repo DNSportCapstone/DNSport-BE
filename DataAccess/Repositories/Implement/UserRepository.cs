@@ -141,5 +141,16 @@ namespace DataAccess.Repositories.Implement
 
             return _mapper.Map<UserModel>(user);
         }
+
+        public async Task<int> SetUserRole(int userId, int roleId)
+        {
+            var user = await _dbcontext.Users.FirstOrDefaultAsync(x => x.UserId == userId);
+            if (user is not null)
+            {
+                user.RoleId = roleId;
+                await _dbcontext.SaveChangesAsync();
+            }
+            return user.UserId;
+        }
     }
 }

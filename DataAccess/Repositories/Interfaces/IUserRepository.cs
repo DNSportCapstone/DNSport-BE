@@ -13,5 +13,6 @@ namespace DataAccess.Repositories.Interfaces
         Task<List<UserModel>> GetAllUser();
         Task<int> SetUserStatus(UserStatusRequest request);
         Task<UserModel> GetUserByBookingId(int bookingId);
+        Task<int> SetUserRole(int userId, int roleId);
     }
 }

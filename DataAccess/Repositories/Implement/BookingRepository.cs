@@ -99,20 +99,20 @@ namespace DataAccess.Repositories.Implement
                 // Check slots are all exist
                 foreach (var bookingField in booking.BookingFields)
                 {
-                        var isExist = await _dbContext.BookingFields
-                            .AnyAsync(bf =>
-                                bf.FieldId == bookingField.FieldId &&
-                                bf.Date == bookingField.Date &&
-                                ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
-                                 (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
-                                 (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
-                            );
+                    var isExist = await _dbContext.BookingFields
+                        .AnyAsync(bf =>
+                            bf.FieldId == bookingField.FieldId &&
+                            bf.Date == bookingField.Date &&
+                            ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
+                             (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
+                             (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
+                        );
 
-                        if (isExist)
-                        {
-                            await transaction.RollbackAsync();
-                            return 0;
-                        }
+                    if (isExist)
+                    {
+                        await transaction.RollbackAsync();
+                        return 0;
+                    }
                 }
                 _dbContext.Add(booking);
                 await _dbContext.SaveChangesAsync();
@@ -125,7 +125,7 @@ namespace DataAccess.Repositories.Implement
                 return 0;
             }
         }
-        
+
         public bool UpdateBookingStatus(int bookingId, string status)
         {
             try
@@ -141,10 +141,94 @@ namespace DataAccess.Repositories.Implement
                 _dbContext.SaveChanges();
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return false;
             }
+        }
+
+        public async Task<int> CreateBookingReport(ReportRequest bookingReport)
+        {
+            try
+            {
+                var isExist = await _dbContext.Denounces.AnyAsync(b => b.BookingId == bookingReport.BookingId);
+                if (isExist)
+                {
+                    return 0;
+                }
+                var lessor = await (from b in _dbContext.Bookings
+                                    join bf in _dbContext.BookingFields on b.BookingId equals bf.BookingId
+                                    join f in _dbContext.Fields on bf.FieldId equals f.FieldId
+                                    join s in _dbContext.Stadiums on f.StadiumId equals s.StadiumId
+                                    join u in _dbContext.Users on b.UserId equals u.UserId
+                                    where b.BookingId == bookingReport.BookingId
+                                    select u).FirstOrDefaultAsync();
+                var report = new Denounce()
+                {
+                    SendId = bookingReport.UserId,
+                    ReceiveId = lessor.UserId,
+                    BookingId = bookingReport.BookingId,
+                    Description = bookingReport.Description,
+                    DenounceTime = DateTime.UtcNow,
+                    Status = "Pending"
+                };
+
+                await _dbContext.Denounces.AddAsync(report);
+                await _dbContext.SaveChangesAsync();
+
+                if (bookingReport.ImageUrl != null)
+                {
+                    var bookingImage = new DenounceImage()
+                    {
+                        DenounceId = report.DenounceId,
+                        Url = bookingReport.ImageUrl
+                    };
+                    await _dbContext.DenounceImages.AddAsync(bookingImage);
+                    await _dbContext.SaveChangesAsync();
+                }
+                return report.DenounceId;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        public async Task<List<DenounceModel>> GetAllDenounce()
+        {
+            var result = await (from d in _dbContext.Denounces
+                                join di in _dbContext.DenounceImages on d.DenounceId equals di.DenounceId into denounceImageJoin
+                                from di in denounceImageJoin.DefaultIfEmpty()
+                                join u in _dbContext.Users on d.SendId equals u.UserId into userJoin
+                                from u in userJoin.DefaultIfEmpty()
+                                join ud in _dbContext.UserDetails on u.UserId equals ud.UserId into userDetailsJoin
+                                from ud in userDetailsJoin.DefaultIfEmpty()
+                                join b in _dbContext.Bookings on d.BookingId equals b.BookingId into bookingJoin
+                                from b in bookingJoin.DefaultIfEmpty()
+                                join bf in _dbContext.BookingFields on b.BookingId equals bf.BookingId into bookingFieldJoin
+                                from bf in bookingFieldJoin.DefaultIfEmpty()
+                                join f in _dbContext.Fields on bf.FieldId equals f.FieldId into fieldJoin
+                                from f in fieldJoin.DefaultIfEmpty()
+                                join s in _dbContext.Stadiums on f.StadiumId equals s.StadiumId into stadiumJoin
+                                from s in stadiumJoin.DefaultIfEmpty()
+
+                                select new DenounceModel
+                                {
+                                    DenounceId = d.DenounceId,
+                                    BookingId = d.BookingId,
+                                    Description = d.Description,
+                                    DenounceTime = d.DenounceTime,
+                                    Status = d.Status,
+                                    UserName = ud != null ? ud.FullName : null,
+                                    BookingDate = (DateTime)b.BookingDate,
+                                    ImageUrl = di.Url,
+                                    UserId = (int)d.SendId,
+                                    StadiumName = s.StadiumName,
+                                    Email = u.Email,
+                                    PhoneNumber = ud.PhoneNumber
+                                }).AsNoTracking().ToListAsync();
+
+            return result;
         }
     }
 }

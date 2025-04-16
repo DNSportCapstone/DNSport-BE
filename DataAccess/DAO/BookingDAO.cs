@@ -24,6 +24,7 @@ namespace DataAccess.DAO
                                 join f in context.Fields on bf.BookingFieldId equals f.FieldId
                                 join s in context.Sports on f.SportId equals s.SportId
                                 join u in context.Users on b.UserId equals u.UserId
+                                where b.Status == "Success"
                                 select new BookingReportModel
                                 {
                                     UserId = u.UserId,

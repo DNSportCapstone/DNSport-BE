@@ -149,6 +149,7 @@ public partial class Db12353Context : DbContext
             entity.Property(e => e.DenounceTime)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.Receive).WithMany(p => p.DenounceReceives)
                 .HasForeignKey(d => d.ReceiveId)

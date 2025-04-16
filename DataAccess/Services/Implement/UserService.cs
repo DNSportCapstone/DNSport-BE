@@ -34,5 +34,10 @@ namespace DataAccess.Services.Implement
         {
             return await _userRepository.SetUserStatus(request);
         }
+
+        public async Task<int> SetUserRole(int userId, int roleId)
+        {
+            return await _userRepository.SetUserRole(userId, roleId);
+        }
     }
 }

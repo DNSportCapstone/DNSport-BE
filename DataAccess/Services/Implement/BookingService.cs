@@ -23,7 +23,7 @@ namespace DataAccess.Services.Implement
         {
             var bookings = await _bookingRepository.GetAllBookings();
             var result = new List<RevenueReportModel>();
-            foreach (var booking in bookings)
+            foreach (var booking in bookings.Where(b => b.Status == "Success").ToList())
             {
                 result.Add(new RevenueReportModel
                 {
@@ -111,7 +111,8 @@ namespace DataAccess.Services.Implement
 
         public Task<List<DenounceModel>> GetAllDenounce()
         {
-            throw new NotImplementedException();
+            var result = _bookingRepository.GetAllDenounce();
+            return result;
         }
 
         public async Task<BookingInvoiceModel> GetBookingInvoice(int id)
@@ -119,6 +120,18 @@ namespace DataAccess.Services.Implement
             var result = await _bookingRepository.GetBookingInvoice(id);
 
             return result;
+        }
+
+        public async Task<int> CreateBookingReport(ReportRequest bookingReport)
+        {
+            try
+            {
+                return await _bookingRepository.CreateBookingReport(bookingReport);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
         }
     }
 }
