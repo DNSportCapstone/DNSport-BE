@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using System.Text.Json;
 using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +27,16 @@ builder.Services.AddControllers()
     .AddOData(opt => opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(int.MaxValue));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<IFieldRepository, FieldRepository>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+var MaillSettings = configuration.GetSection("MaillSettings");
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+builder.Services.AddScoped<IFieldRepository,FieldRepository>();
+builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
+builder.Services.AddScoped<CloudinaryService>();
+builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.Configure<MailSetting>(MaillSettings);
+builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 builder.Services.AddSwaggerGen(option =>
 {   
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "DNSport API", Version = "v1" });
@@ -75,6 +84,7 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IVnpay, Vnpay>();
 builder.Services.AddTransient<VnpayPayment>();
 builder.Services.AddScoped<IFieldService, FieldService>();
+builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 builder.Services.AddScoped<IRefundRepository, RefundRepository>();
 
 
@@ -88,6 +98,7 @@ builder.Services.AddSingleton<IEmailSender, SendMailServices>();
 builder.Services.AddHttpClient<IGoMapsService, GoMapsService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStadiumService, StadiumService>();
+builder.Services.AddScoped<IVoucherService, VoucherService>();
 
 
 var corsSettings = builder.Configuration.GetSection("CORS");
@@ -118,6 +129,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 var app = builder.Build();
+app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 if (app.Environment.IsDevelopment())
 {

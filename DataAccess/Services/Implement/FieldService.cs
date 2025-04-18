@@ -4,9 +4,6 @@ using DataAccess.DTOs.Response;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
 
 namespace DataAccess.Services.Implement
 {
@@ -14,12 +11,13 @@ namespace DataAccess.Services.Implement
     {
         private readonly IFieldRepository _fieldRepository;
         private readonly Db12353Context _dbcontext;
+        private readonly IEmailSender _emailSender;
 
-
-        public FieldService(Db12353Context dbcontext, IFieldRepository fieldRepository)
+        public FieldService(Db12353Context dbcontext, IFieldRepository fieldRepository, IEmailSender emailSender)
         {
             _dbcontext = dbcontext;
             _fieldRepository = fieldRepository;
+            _emailSender = emailSender;
         }
         public async Task<List<GetFieldResponse>> GetAllFieldsAsync()
         {
@@ -27,10 +25,10 @@ namespace DataAccess.Services.Implement
             return fields.Select(f => new GetFieldResponse
             {
                 FieldId = f.FieldId,
-                StadiumId = f.StadiumId ?? 0, 
-                SportId = f.SportId ?? 0,     
+                StadiumId = f.StadiumId ?? 0,
+                SportId = f.SportId ?? 0,
                 Description = f.Description,
-                DayPrice = f.DayPrice ?? 0,   
+                DayPrice = f.DayPrice ?? 0,
                 NightPrice = f.NightPrice ?? 0,
                 ImageUrls = f.Images.Select(i => i.Url).ToList()
             }).ToList();
@@ -91,6 +89,32 @@ namespace DataAccess.Services.Implement
         {
             return await _fieldRepository.GetFieldsByStadiumId(stadiumId);
 
+        }
+
+        public async Task<int> SetFieldStatus(FieldStatusRequest request)
+        {
+            var result = await _fieldRepository.SetFieldStatus(request);
+            if (request.Status == "disable")
+            {
+                var owner = await _fieldRepository.GetFieldOwner(request.FieldId);
+                var field = await _fieldRepository.GetFieldByIdAsync(request.FieldId);
+                await _emailSender.SendEmailAsync(owner.Email, $"Thông báo về việc tạm thời vô hiệu hóa {field.Description}",
+                                                  $@"
+                                                    <p>Chào bạn,</p>
+
+                                                    <p>Chúng tôi rất tiếc khi phải thông báo rằng <strong>{field.Description}</strong> của bạn đã tạm thời bị đình chỉ hoạt động do nhận được nhiều phản ánh từ người dùng.</p>
+
+                                                    <p>Hiện tại, chúng tôi đang tiến hành kiểm tra và xác minh các phản ánh này để đảm bảo tính minh bạch và công bằng.</p>
+
+                                                    <p>Trong thời gian này, bạn sẽ không thể sử dụng chức năng liên quan đến <strong>{field.Description}</strong>. Chúng tôi sẽ liên hệ lại với bạn ngay khi quá trình kiểm tra hoàn tất hoặc khi cần thêm thông tin.</p>
+
+                                                    <p>Nếu bạn có bất kỳ thắc mắc nào hoặc cần hỗ trợ thêm, vui lòng phản hồi email này hoặc liên hệ với đội ngũ hỗ trợ của chúng tôi.</p>
+
+                                                    <p>Trân trọng,<br>
+                                                    <em>Đội ngũ hỗ trợ</em></p>
+                                                  ");
+            }
+            return result;
         }
     }
 }

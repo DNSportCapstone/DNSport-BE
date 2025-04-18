@@ -21,9 +21,10 @@ namespace DataAccess.DAO
             return await _dbcontext.Users.Include(u => u.UserDetail).ToListAsync();
         }
 
-        public User GetUserById(int id)
+        public async Task<User> GetUserById(int id)
         {
-            return _dbcontext.Users.FirstOrDefault(c => c.UserId == id) ?? new User();
+            using var context = new Db12353Context();
+            return await context.Users.Include(u => u.UserDetail).FirstOrDefaultAsync(c => c.UserId == id) ?? new User();
         }
         public User GetUserInfomationById(int id)
         {

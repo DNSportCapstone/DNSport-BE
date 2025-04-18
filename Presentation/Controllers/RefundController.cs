@@ -156,5 +156,12 @@ namespace Presentation.Controllers
                 Message = "Đã xảy ra lỗi khi cập nhật trạng thái refund"
             });
         }
+
+        [HttpGet("all-refund")]
+        public async Task<IActionResult> GetAllRefunds()
+        {
+            var refunds = await _refundRepository.GetAllRefundsAsync();
+            return Ok(refunds);
+        }
     }
 }

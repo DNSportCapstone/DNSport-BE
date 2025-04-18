@@ -17,6 +17,10 @@ public partial class Denounce
 
     public DateTime? DenounceTime { get; set; }
 
+    public int BookingId { get; set; }
+
+    public string? Status { get; set; }
+
     public virtual ICollection<DenounceImage> DenounceImages { get; set; } = new List<DenounceImage>();
 
     public virtual User? Receive { get; set; }

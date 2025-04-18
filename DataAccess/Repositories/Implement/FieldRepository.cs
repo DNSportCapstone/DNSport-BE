@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
-using DataAccess.DTOs.Response;
+using DataAccess.DTOs.Request;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace DataAccess.Repositories.Implement
 {
@@ -48,7 +47,7 @@ namespace DataAccess.Repositories.Implement
         }
         public async Task<Field?> GetFieldByIdAsync(int fieldId)
         {
-            return await _dbcontext.Fields.FindAsync(fieldId);
+            return await _dbcontext.Fields.Include(f => f.Stadium).FirstOrDefaultAsync(f => f.FieldId == fieldId);
         }
         //Update New Field 
         public async Task UpdateFieldAsync(Field field)
@@ -104,5 +103,69 @@ namespace DataAccess.Repositories.Implement
                 return new List<FieldModel>();
             }
         }
+
+        public async Task<int> SetFieldStatus(FieldStatusRequest request)
+        {
+            var field = await _dbcontext.Fields.FirstOrDefaultAsync(f => f.FieldId == request.FieldId);
+            if (field == null)
+            {
+                return 0;
+            }
+            field.Status = request.Status;
+            await _dbcontext.SaveChangesAsync();
+            return 1;
+        }
+
+        public async Task<User> GetFieldOwner(int fieldId)
+        {
+            var user = await _dbcontext.Fields
+                .Where(f => f.FieldId == fieldId)
+                .Select(f => f.Stadium.User)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+            return user;
+        }
+
+        public async Task<Field> GetFieldsByBookingId(int bookingId)
+        {
+            var field = await _dbcontext.BookingFields
+                .Where(bf => bf.BookingId == bookingId)
+                .Select(bf => bf.Field)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            return field;
+        }
+
+        public async Task<List<FieldReportModel>> GetFieldReportList()
+        {
+            var fieldReportModels = await (from f in _dbcontext.Fields
+                                           join s in _dbcontext.Stadiums on f.StadiumId equals s.StadiumId into stadiumGroup
+                                           from stadium in stadiumGroup.DefaultIfEmpty()
+                                           join u in _dbcontext.Users on stadium.UserId equals u.UserId into userGroup
+                                           from user in userGroup.DefaultIfEmpty()
+                                           join ud in _dbcontext.UserDetails on user.UserId equals ud.UserId into userDetailGroup
+                                           from userDetail in userDetailGroup.DefaultIfEmpty()
+                                           select new FieldReportModel
+                                           {
+                                               FieldId = f.FieldId,
+                                               FieldName = f.Description ?? string.Empty,
+                                               StadiumName = stadium.StadiumName ?? string.Empty,
+                                               OwnerEmail = user.Email ?? string.Empty,
+                                               OwnerName = userDetail.FullName ?? string.Empty,
+                                               IsActive = f.Status == "Active" ? true : false,
+                                               ViolationCount = (
+                                                   from bf in _dbcontext.BookingFields
+                                                   join b in _dbcontext.Bookings on bf.BookingId equals b.BookingId
+                                                   join d in _dbcontext.Denounces on b.BookingId equals d.BookingId
+                                                   where bf.FieldId == f.FieldId
+                                                   select d
+                                               ).Count()
+                                           }
+                                        ).ToListAsync();
+
+            return fieldReportModels;
+        }
+
     }
 }
