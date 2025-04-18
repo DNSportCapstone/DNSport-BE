@@ -1,6 +1,5 @@
 ﻿using BusinessObject.Models;
 using DataAccess.DTOs.Request;
-using DataAccess.DTOs.Response;
 using DataAccess.Model;
 
 namespace DataAccess.Repositories.Interfaces
@@ -16,5 +15,8 @@ namespace DataAccess.Repositories.Interfaces
         Task UpdateFieldImagesAsync(int fieldId, List<string> imageUrls);
         Task<List<FieldModel>> GetFieldsByStadiumId(int stadiumId);
         Task<int> SetFieldStatus(FieldStatusRequest request);
+        Task<User> GetFieldOwner(int fieldId);
+        Task<Field> GetFieldsByBookingId(int bookingId);
+        Task<List<FieldReportModel>> GetFieldReportList();
     }
 }

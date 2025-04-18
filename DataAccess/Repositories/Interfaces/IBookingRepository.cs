@@ -14,5 +14,7 @@ namespace DataAccess.Repositories.Interfaces
         bool UpdateBookingStatus(int bookingId, string status);
         Task<int> CreateBookingReport(ReportRequest bookingReport);
         Task<List<DenounceModel>> GetAllDenounce();
+        Task<List<TransactionLogModel>> GetTransactionLog(int userId);
+        Task<int> SetReportStatus(int id, string status);
     }
 }

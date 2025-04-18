@@ -101,5 +101,26 @@ namespace Presentation.Controllers
             var result = await _userService.SetUserRole(userId, role);
             return Ok(result);
         }
+
+        [HttpPost("set-report-status/{reportId}")]
+        public async Task<IActionResult> SetReportStatus(int reportId, [FromBody] string status)
+        {
+            var result = await _bookingService.SetReportStatus(reportId, status);
+            return Ok(result);
+        }
+
+        [HttpPost("warning-lessor")]
+        public async Task<IActionResult> WarningLessor([FromBody] WarningRequest request)
+        {
+            var result = await _userService.WarningLessor(request);
+            return Ok(result);
+        }
+
+        [HttpGet("get-feild-report")]
+        public async Task<IActionResult> GetFieldReportList()
+        {
+            var result = await _bookingService.GetFieldReportList();
+            return Ok(result);
+        }
     }
 }

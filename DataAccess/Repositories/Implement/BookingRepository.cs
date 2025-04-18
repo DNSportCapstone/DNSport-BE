@@ -20,15 +20,13 @@ namespace DataAccess.Repositories.Implement
         {
             var canConnect = await _dbContext.Database.CanConnectAsync();
             var result = await (from b in _dbContext.Bookings
-                                join u in _dbContext.Users
-                                on b.UserId equals u.UserId
-                                join bf in _dbContext.BookingFields
-                                on b.BookingId equals bf.BookingId
-                                join f in _dbContext.Fields
-                                on bf.FieldId equals f.FieldId
-                                join s in _dbContext.Stadiums
-                                on f.StadiumId equals s.StadiumId
-                                where b.UserId == userId
+                                join u in _dbContext.Users on b.UserId equals u.UserId
+                                join bf in _dbContext.BookingFields on b.BookingId equals bf.BookingId
+                                join f in _dbContext.Fields on bf.FieldId equals f.FieldId
+                                join s in _dbContext.Stadiums on f.StadiumId equals s.StadiumId
+                                join d in _dbContext.Denounces on b.BookingId equals d.BookingId into denounceJoin
+                                from d in denounceJoin.DefaultIfEmpty()
+                                where b.Status == "Success" && b.UserId == userId
                                 select new BookingHistoryModel
                                 {
                                     BookingId = b.BookingId,
@@ -39,7 +37,8 @@ namespace DataAccess.Repositories.Implement
                                     StartTime = bf.StartTime,
                                     EndTime = bf.EndTime,
                                     StadiumName = s.StadiumName,
-                                    Description = f.Description
+                                    Description = f.Description,
+                                    IsReport = d != null ? true : false
                                 }).AsNoTracking().ToListAsync();
 
             return result;
@@ -229,6 +228,46 @@ namespace DataAccess.Repositories.Implement
                                 }).AsNoTracking().ToListAsync();
 
             return result;
+        }
+
+        public async Task<List<TransactionLogModel>> GetTransactionLog(int userId)
+        {
+            var result = await (from t in _dbContext.TransactionLogs
+                                join b in _dbContext.Bookings on t.BookingId equals b.BookingId into bookingJoin
+                                from b in bookingJoin.DefaultIfEmpty()
+                                where t.UserId == userId
+                                select new TransactionLogModel
+                                {
+                                    LogId = t.LogId,
+                                    UserId = t.UserId,
+                                    BookingId = t.BookingId,
+                                    TimeSlot = t.TimeSlot,
+                                    TransactionType = t.TransactionType,
+                                    ErrorMessage = t.ErrorMessage,
+                                    CreatedAt = t.CreatedAt,
+                                    UpdatedAt = t.UpdatedAt,
+                                    Amount = b.TotalPrice.ToString()
+                                }).AsNoTracking().ToListAsync();
+            return result;
+        }
+
+        public async Task<int> SetReportStatus(int id, string status)
+        {
+            try
+            {
+                var report = await _dbContext.Denounces.FindAsync(id);
+                if (report == null)
+                {
+                    return 0;
+                }
+                report.Status = status;
+                await _dbContext.SaveChangesAsync();
+                return report.DenounceId;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
         }
     }
 }

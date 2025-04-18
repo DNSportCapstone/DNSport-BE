@@ -12,5 +12,6 @@
         public DateTime? EndTime { get; set; }
         public string? StadiumName { get; set; }
         public string? Description { get; set; }
+        public bool? IsReport { get; set; }
     }
 }

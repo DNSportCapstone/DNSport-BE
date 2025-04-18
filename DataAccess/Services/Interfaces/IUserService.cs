@@ -10,5 +10,6 @@ namespace DataAccess.Services.Interfaces
         Task<List<UserModel>> GetAllUser();
         Task<int> SetUserStatus(UserStatusRequest request);
         Task<int> SetUserRole(int userId, int roleId);
+        Task<bool> WarningLessor(WarningRequest request);
     }
 }

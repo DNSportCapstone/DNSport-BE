@@ -12,5 +12,9 @@ namespace DataAccess.Services.Interfaces
         Task<int> CreateMultipleBookings(MultipleBookingsRequest request);
         Task<bool> UpdateBookingStatusAsync(int bookingId, string status);
         Task<int> CreateBookingReport(ReportRequest bookingReport);
+        Task<List<TransactionLogModel>> GetTransactionLog(int userId);
+        Task<int> SetReportStatus(int id, string status);
+        Task<List<FieldReportModel>> GetFieldReportList();
+        Task<List<BookingHistoryModel>> GetBookingHistory(int userId);
     }
 }

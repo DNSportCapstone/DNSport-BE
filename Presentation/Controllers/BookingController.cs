@@ -1,7 +1,6 @@
 ﻿using CloudinaryDotNet;
 using DataAccess.DTOs.Request;
 using DataAccess.Model;
-using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +13,11 @@ namespace Presentation.Controllers
     [Authorize]
     public class BookingController : ControllerBase
     {
-        private readonly IBookingRepository _bookingRepository;
         private readonly IBookingService _bookingService;
         private readonly Cloudinary _cloudinary;
 
-        public BookingController(IBookingRepository bookingRepository, IBookingService bookingService, IOptions<CloudinarySettings> config)
+        public BookingController(IBookingService bookingService, IOptions<CloudinarySettings> config)
         {
-            _bookingRepository = bookingRepository;
             var account = new Account(config.Value.CloudName, config.Value.ApiKey, config.Value.ApiSecret);
             _cloudinary = new Cloudinary(account);
             _bookingService = bookingService;
@@ -29,7 +26,7 @@ namespace Presentation.Controllers
         [HttpGet("history/{userId}")]
         public async Task<IActionResult> GetBookingHistory(int userId)
         {
-            var result = await _bookingRepository.GetBookingHistory(userId);
+            var result = await _bookingService.GetBookingHistory(userId);
             return Ok(result);
         }
         [HttpPost("multiple")]
@@ -84,6 +81,13 @@ namespace Presentation.Controllers
             {
                 IsSuccess = true
             });
+        }
+
+        [HttpGet("payment-histor/{userId}")]
+        public async Task<IActionResult> GetTransactionLog(int userId)
+        {
+            var result = await _bookingService.GetTransactionLog(userId);
+            return Ok(result);
         }
     }
 }
