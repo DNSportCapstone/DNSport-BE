@@ -10,5 +10,7 @@ namespace DataAccess.Services.Interfaces
         Task<int> CreateMultipleBookings(MultipleBookingsRequest request);
         bool UpdateBookingStatus(int bookingId, string status);
         void AddTransactionLogAndRevenueTransaction(int bookingId);
+        Task<int> CreateRecurringBookings(RecurringBookingRequest request);
+        decimal GetTotalPriceWithVoucher(int bookingId);
     }
 }

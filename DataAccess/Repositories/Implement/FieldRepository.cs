@@ -115,6 +115,8 @@ namespace DataAccess.Repositories.Implement
                             {
                                 FieldId = f.FieldId,
                                 Description = f.Description ?? string.Empty,
+                                DayPrice = f.DayPrice ?? 0,
+                                NightPrice = f.NightPrice ?? 0,
                                 Images = f.Images.Select(i => new ImageModel
                                 {
                                     ImageId = i.ImageId,
@@ -128,7 +130,17 @@ namespace DataAccess.Repositories.Implement
                                     EndTime = bf.EndTime,
                                     Price = bf.Price,
                                     Date = bf.Date
-                                }).ToList()
+                                }).ToList(),
+                                Sport = new SportModel
+                                {
+                                    SportId = f.SportId ?? 0,
+                                    SportName = f.Sport != null ? f.Sport.SportName : string.Empty,
+                                },
+                                Stadium = new StadiumModel
+                                {
+                                    StadiumName = f.Stadium != null ? f.Stadium.StadiumName : string.Empty,
+                                    Address = f.Stadium != null ? f.Stadium.Address : string.Empty,
+                                }
                             })
                             .FirstOrDefaultAsync();
                 return fields;

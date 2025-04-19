@@ -143,6 +143,28 @@ namespace DataAccess.Services.Implement
             }
         }
 
+        public async Task<int> CreateRecurringBookings(RecurringBookingRequest request)
+        {
+            try
+            {
+                return await _bookingRepository.CreateRecurringBookings(request);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+        public decimal GetTotalPriceWithVoucher(int bookingId)
+        {
+            try
+            {
+                return _bookingRepository.GetTotalPriceWithVoucher(bookingId);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
         private DateTime RandomDatetime()
         {
             Random gen = new Random();

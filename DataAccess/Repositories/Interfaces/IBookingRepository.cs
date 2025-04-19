@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataAccess.DTOs.Request;
 using DataAccess.Model;
 
 namespace DataAccess.Repositories.Interfaces
@@ -11,5 +12,7 @@ namespace DataAccess.Repositories.Interfaces
         Task<int> CreateMultipleBookings(Booking booking);
         bool UpdateBookingStatus(int bookingId, string status);
         void AddTransactionLogAndRevenueTransaction(int bookingId);
+        Task<int> CreateRecurringBookings(RecurringBookingRequest request);
+        decimal GetTotalPriceWithVoucher(int bookingId);
     }
 }
