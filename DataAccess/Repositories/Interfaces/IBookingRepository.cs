@@ -10,5 +10,6 @@ namespace DataAccess.Repositories.Interfaces
         Task<List<BookingReportModel>> GetBookingReport();
         Task<int> CreateMultipleBookings(Booking booking);
         bool UpdateBookingStatus(int bookingId, string status);
+        void AddTransactionLogAndRevenueTransaction(int bookingId);
     }
 }

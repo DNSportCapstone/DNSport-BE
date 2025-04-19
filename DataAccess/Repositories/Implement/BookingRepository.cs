@@ -39,7 +39,7 @@ namespace DataAccess.Repositories.Implement
                                     StartTime = bf.StartTime,
                                     EndTime = bf.EndTime,
                                     StadiumName = s.StadiumName,
-                                    Description = f.Description                                    
+                                    Description = f.Description
                                 }).AsNoTracking().ToListAsync();
 
             return result;
@@ -62,20 +62,20 @@ namespace DataAccess.Repositories.Implement
                 // Check slots are all exist
                 foreach (var bookingField in booking.BookingFields)
                 {
-                        var isExist = await _dbContext.BookingFields
-                            .AnyAsync(bf =>
-                                bf.FieldId == bookingField.FieldId &&
-                                bf.Date == bookingField.Date &&
-                                ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
-                                 (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
-                                 (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
-                            );
+                    var isExist = await _dbContext.BookingFields
+                        .AnyAsync(bf =>
+                            bf.FieldId == bookingField.FieldId &&
+                            bf.Date == bookingField.Date &&
+                            ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
+                             (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
+                             (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
+                        );
 
-                        if (isExist)
-                        {
-                            await transaction.RollbackAsync();
-                            return 0;
-                        }
+                    if (isExist)
+                    {
+                        await transaction.RollbackAsync();
+                        return 0;
+                    }
                 }
                 _dbContext.Add(booking);
                 await _dbContext.SaveChangesAsync();
@@ -103,9 +103,45 @@ namespace DataAccess.Repositories.Implement
                 _dbContext.SaveChanges();
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return false;
+            }
+        }
+        public void AddTransactionLogAndRevenueTransaction(int bookingId)
+        {
+            try
+            {
+                var booking = _dbContext.Bookings.Find(bookingId);
+
+                var transactionLog = new TransactionLog
+                {
+                    BookingId = booking.BookingId,
+                    UserId = booking.UserId,
+                    TimeSlot = DateTime.UtcNow,
+                    TransactionType = "Banking",
+                    ErrorMessage = string.Empty,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                };
+
+                var revenueTransaction = new RevenueTransaction
+                {
+                    BookingId = booking.BookingId,
+                    TotalRevenue = booking.TotalPrice,
+                    AdminAmount = 90,
+                    OwnerAmount = 10,
+                    RevenueTransactionDate = DateTime.UtcNow,
+                    Status = "Pending",
+                };
+
+                _dbContext.TransactionLogs.Add(transactionLog);
+                _dbContext.RevenueTransactions.Add(revenueTransaction);
+                _dbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                throw;
             }
         }
     }

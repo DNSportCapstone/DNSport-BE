@@ -119,7 +119,7 @@ namespace DataAccess.Services.Implement
             }
         }
 
-        public async Task<bool> UpdateBookingStatusAsync(int bookingId, string status)
+        public bool UpdateBookingStatus(int bookingId, string status)
         {
             try
             {
@@ -128,6 +128,18 @@ namespace DataAccess.Services.Implement
             catch
             {
                 return false;
+            }
+        }
+
+        public void AddTransactionLogAndRevenueTransaction(int bookingId)
+        {
+            try
+            {
+                _bookingRepository.AddTransactionLogAndRevenueTransaction(bookingId);
+            }
+            catch
+            {
+                throw;
             }
         }
 

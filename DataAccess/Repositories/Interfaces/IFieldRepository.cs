@@ -15,6 +15,7 @@ namespace DataAccess.Repositories.Interfaces
         Task AddImagesToFieldAsync(int fieldId, List<string> imageUrls);
         Task UpdateFieldImagesAsync(int fieldId, List<string> imageUrls);
         Task<List<FieldModel>> GetFieldsByStadiumId(int stadiumId);
+        Task<FieldModel> GetFieldById(int fieldId);
 
     }
 }

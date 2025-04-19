@@ -42,6 +42,12 @@ namespace Presentation.Controllers
             var fields = await _fieldService.GetFieldsByStadiumId(stadiumId);
             return Ok(fields);
         }
+        [HttpGet("{fieldId}")]
+        public async Task<IActionResult> GetFieldById(int fieldId)
+        {
+            var field = await _fieldService.GetFieldById(fieldId);
+            return Ok(field);
+        }
     }
 
 }

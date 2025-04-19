@@ -64,8 +64,15 @@ namespace Presentation.Controllers
                     var paymentResult = _vnpay.GetPaymentResult(Request.Query);
                     if (paymentResult.IsSuccess && int.TryParse(paymentResult.Description, out int bookingId))
                     {
-                        _bookingService.UpdateBookingStatusAsync(bookingId, Constants.BookingStatus.Paid);
-                        return Ok();
+                        if (_bookingService.UpdateBookingStatus(bookingId, Constants.BookingStatus.Paid))
+                        {
+                            _bookingService.AddTransactionLogAndRevenueTransaction(bookingId);
+                            return Ok();
+                        }
+                        else
+                        {
+                            return BadRequest("Thanh toán thất bại");
+                        }
                     }
                     return BadRequest("Thanh toán thất bại");
                 }

@@ -104,5 +104,39 @@ namespace DataAccess.Repositories.Implement
                 return new List<FieldModel>();
             }
         }
+
+        public async Task<FieldModel> GetFieldById(int fieldId)
+        {
+            try
+            {
+                var fields = await _dbcontext.Fields
+                            .Where(f => f.FieldId == fieldId)
+                            .Select(f => new FieldModel
+                            {
+                                FieldId = f.FieldId,
+                                Description = f.Description ?? string.Empty,
+                                Images = f.Images.Select(i => new ImageModel
+                                {
+                                    ImageId = i.ImageId,
+                                    FieldId = i.FieldId ?? 0,
+                                    Url = i.Url ?? string.Empty,
+                                }).ToList(),
+                                BookingFields = f.BookingFields.Select(bf => new BookingFieldModel
+                                {
+                                    BookingFieldId = bf.BookingFieldId,
+                                    StartTime = bf.StartTime,
+                                    EndTime = bf.EndTime,
+                                    Price = bf.Price,
+                                    Date = bf.Date
+                                }).ToList()
+                            })
+                            .FirstOrDefaultAsync();
+                return fields;
+            }
+            catch
+            {
+                return new FieldModel();
+            }
+        }
     }
 }
