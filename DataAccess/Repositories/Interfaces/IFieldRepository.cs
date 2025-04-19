@@ -18,5 +18,7 @@ namespace DataAccess.Repositories.Interfaces
         Task<User> GetFieldOwner(int fieldId);
         Task<Field> GetFieldsByBookingId(int bookingId);
         Task<List<FieldReportModel>> GetFieldReportList();
+        Task<FieldModel> GetFieldById(int fieldId);
+
     }
 }

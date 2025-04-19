@@ -64,8 +64,15 @@ namespace Presentation.Controllers
                     var paymentResult = _vnpay.GetPaymentResult(Request.Query);
                     if (paymentResult.IsSuccess && int.TryParse(paymentResult.Description, out int bookingId))
                     {
-                        _bookingService.UpdateBookingStatusAsync(bookingId, Constants.BookingStatus.Paid);
-                        return Ok();
+                        if (_bookingService.UpdateBookingStatus(bookingId, Constants.BookingStatus.Paid))
+                        {
+                            _bookingService.AddTransactionLogAndRevenueTransaction(bookingId);
+                            return Ok();
+                        }
+                        else
+                        {
+                            return BadRequest("Thanh toán thất bại");
+                        }
                     }
                     return BadRequest("Thanh toán thất bại");
                 }
@@ -89,6 +96,35 @@ namespace Presentation.Controllers
                 {
                     PaymentId = DateTime.Now.Ticks,
                     Money = (double)payment.Amount,
+                    Description = payment.BookingId.ToString(),
+                    IpAddress = ipAddress,
+                    BankCode = BankCode.ANY,
+                    CreatedDate = DateTime.Now,
+                    Currency = Currency.VND,
+                    Language = DisplayLanguage.Vietnamese
+                };
+
+                var paymentUrl = _vnpay.GetPaymentUrl(request);
+
+                var result = Created(paymentUrl, paymentUrl);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost("payment-url/recurring-booking")]
+        public ActionResult<string> CreatePaymentUrlForRecurringBooking([FromBody] PaymentRequestModel payment)
+        {
+            try
+            {
+                var ipAddress = NetworkHelper.GetIpAddress(HttpContext);
+                var totalPriceWithVoucher = _bookingService.GetTotalPriceWithVoucher(payment.BookingId);
+                var request = new PaymentRequest
+                {
+                    PaymentId = DateTime.Now.Ticks,
+                    Money = (double)totalPriceWithVoucher,
                     Description = payment.BookingId.ToString(),
                     IpAddress = ipAddress,
                     BankCode = BankCode.ANY,

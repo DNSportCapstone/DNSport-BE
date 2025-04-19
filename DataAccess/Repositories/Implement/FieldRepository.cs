@@ -167,5 +167,51 @@ namespace DataAccess.Repositories.Implement
             return fieldReportModels;
         }
 
+
+        public async Task<FieldModel> GetFieldById(int fieldId)
+        {
+            try
+            {
+                var fields = await _dbcontext.Fields
+                            .Where(f => f.FieldId == fieldId)
+                            .Select(f => new FieldModel
+                            {
+                                FieldId = f.FieldId,
+                                Description = f.Description ?? string.Empty,
+                                DayPrice = f.DayPrice ?? 0,
+                                NightPrice = f.NightPrice ?? 0,
+                                Images = f.Images.Select(i => new ImageModel
+                                {
+                                    ImageId = i.ImageId,
+                                    FieldId = i.FieldId ?? 0,
+                                    Url = i.Url ?? string.Empty,
+                                }).ToList(),
+                                BookingFields = f.BookingFields.Select(bf => new BookingFieldModel
+                                {
+                                    BookingFieldId = bf.BookingFieldId,
+                                    StartTime = bf.StartTime,
+                                    EndTime = bf.EndTime,
+                                    Price = bf.Price,
+                                    Date = bf.Date
+                                }).ToList(),
+                                Sport = new SportModel
+                                {
+                                    SportId = f.SportId ?? 0,
+                                    SportName = f.Sport != null ? f.Sport.SportName : string.Empty,
+                                },
+                                Stadium = new StadiumModel
+                                {
+                                    StadiumName = f.Stadium != null ? f.Stadium.StadiumName : string.Empty,
+                                    Address = f.Stadium != null ? f.Stadium.Address : string.Empty,
+                                }
+                            })
+                            .FirstOrDefaultAsync();
+                return fields;
+            }
+            catch
+            {
+                return new FieldModel();
+            }
+        }
     }
 }

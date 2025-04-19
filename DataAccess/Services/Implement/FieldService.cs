@@ -138,5 +138,10 @@ namespace DataAccess.Services.Implement
             }
             return result;
         }
+        public async Task<FieldModel> GetFieldById(int fieldId)
+        {
+            return await _fieldRepository.GetFieldById(fieldId);
+
+        }
     }
 }

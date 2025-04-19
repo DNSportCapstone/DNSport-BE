@@ -95,7 +95,7 @@ namespace DataAccess.Services.Implement
             }
         }
 
-        public async Task<bool> UpdateBookingStatusAsync(int bookingId, string status)
+        public bool UpdateBookingStatus(int bookingId, string status)
         {
             try
             {
@@ -181,6 +181,47 @@ namespace DataAccess.Services.Implement
             {
                 return new List<BookingHistoryModel>();
             }
+        }
+        public void AddTransactionLogAndRevenueTransaction(int bookingId)
+        {
+            try
+            {
+                _bookingRepository.AddTransactionLogAndRevenueTransaction(bookingId);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> CreateRecurringBookings(RecurringBookingRequest request)
+        {
+            try
+            {
+                return await _bookingRepository.CreateRecurringBookings(request);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+        public decimal GetTotalPriceWithVoucher(int bookingId)
+        {
+            try
+            {
+                return _bookingRepository.GetTotalPriceWithVoucher(bookingId);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+        private DateTime RandomDatetime()
+        {
+            Random gen = new Random();
+            DateTime start = new DateTime(1995, 1, 1);
+            int range = (DateTime.Today - start).Days;
+            return start.AddDays(gen.Next(range));
         }
     }
 }

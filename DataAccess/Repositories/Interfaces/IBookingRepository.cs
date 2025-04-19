@@ -16,5 +16,8 @@ namespace DataAccess.Repositories.Interfaces
         Task<List<DenounceModel>> GetAllDenounce();
         Task<List<TransactionLogModel>> GetTransactionLog(int userId);
         Task<int> SetReportStatus(int id, string status);
+        void AddTransactionLogAndRevenueTransaction(int bookingId);
+        Task<int> CreateRecurringBookings(RecurringBookingRequest request);
+        decimal GetTotalPriceWithVoucher(int bookingId);
     }
 }
