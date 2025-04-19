@@ -8,5 +8,6 @@ namespace DataAccess.Repositories.Interfaces
         Task<List<StadiumModel>> GetStadiumData();
         Task<Stadium> AddStadium(StadiumRequestModel model);
         Task<int> DisableStadium(int id, string status);
+        Task<List<StadiumModel>> GetStadiumsByUserId(int userId);
     }
 }

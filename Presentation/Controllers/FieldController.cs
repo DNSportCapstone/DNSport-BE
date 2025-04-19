@@ -45,9 +45,13 @@ namespace Presentation.Controllers
         [HttpGet("{fieldId}")]
         public async Task<IActionResult> GetFieldById(int fieldId)
         {
-            var field = await _fieldService.GetFieldById(fieldId);
+            var field = await _fieldService.GetFieldByIdAsync(fieldId);
+            if (field == null)
+            {
+                return NotFound("Field not found");
+            }
             return Ok(field);
-        }
+        }      
     }
 
 }
