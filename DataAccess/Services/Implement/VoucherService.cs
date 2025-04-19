@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using DataAccess.DTOs.Request;
 using DataAccess.DTOs.Response;
 using DataAccess.Model;
@@ -61,5 +61,15 @@ public class VoucherService : IVoucherService
     public async Task<bool> IsVoucherCodeUniqueAsync(string voucherCode)
     {
         return await _voucherRepository.IsVoucherCodeUniqueAsync(voucherCode);
+    }
+
+    public async Task<int> CreateOrUpdateVoucher(CreateOrUpdateVoucherRequest request)
+    {
+        return await _voucherRepository.CreateOrUpdateVoucher(request);
+    }
+
+    public async Task<List<CreateOrUpdateVoucherRequest>> GetAllVouchers()
+    {
+        return await _voucherRepository.GetAllVouchers();
     }
 }

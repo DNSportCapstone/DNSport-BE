@@ -13,6 +13,8 @@ public partial class Voucher
 
     public DateTime? ExpiryDate { get; set; }
 
+    public int? Quantity { get; set; }
+
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
     public virtual ICollection<UserVoucher> UserVouchers { get; set; } = new List<UserVoucher>();

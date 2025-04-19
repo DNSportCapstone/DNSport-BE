@@ -6,10 +6,14 @@ namespace DataAccess.DAO
 {
     public class BookingDAO
     {
+        private readonly Db12353Context _dbContext;
+        public BookingDAO(Db12353Context dbcontext)
+        {
+            _dbContext = dbcontext;
+        }
         public async Task<List<Booking>> GetAllBooking()
         {
-            using var context = new Db12353Context();
-            return await context.Bookings.ToListAsync();
+            return await _dbContext.Bookings.ToListAsync();
         }
 
         public async Task<List<BookingReportModel>> GetBookingReport()
@@ -17,16 +21,16 @@ namespace DataAccess.DAO
             using var context = new Db12353Context();
             var result = await (from b in context.Bookings
                                 join bf in context.BookingFields on b.BookingId equals bf.BookingId
-                                join bs in context.BookingFieldServices on bf.BookingFieldId equals bs.BookingFieldId
-                                join s in context.Services on bs.ServiceId equals s.ServiceId
-                                join c in context.ServiceCategories on s.CategoryId equals c.CategoryId
+                                join f in context.Fields on bf.BookingFieldId equals f.FieldId
+                                join s in context.Sports on f.SportId equals s.SportId
                                 join u in context.Users on b.UserId equals u.UserId
+                                where b.Status == "Success"
                                 select new BookingReportModel
                                 {
                                     UserId = u.UserId,
                                     UserName = u.Email,
                                     BookingTime = b.BookingDate,
-                                    Type = c.CategoryName
+                                    Type = s.SportName
                                 }).AsNoTracking().ToListAsync();
             return result;
         }

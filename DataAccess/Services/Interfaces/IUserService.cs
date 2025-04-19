@@ -8,5 +8,8 @@ namespace DataAccess.Services.Interfaces
         Task<UpdateUserRequest> GetUserDetails(int userId);
         Task<int> UpdateUser(UpdateUserRequest request);
         Task<List<UserModel>> GetAllUser();
+        Task<int> SetUserStatus(UserStatusRequest request);
+        Task<int> SetUserRole(int userId, int roleId);
+        Task<bool> WarningLessor(WarningRequest request);
     }
 }

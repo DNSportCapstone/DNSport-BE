@@ -1,5 +1,6 @@
-﻿using DataAccess.Model;
+using DataAccess.Model;
 using System.Threading.Tasks;
+using DataAccess.DTOs.Request;
 
 namespace DataAccess.Repositories.Interfaces
 {
@@ -11,5 +12,7 @@ namespace DataAccess.Repositories.Interfaces
         Task<bool> UpdateVoucherAsync(VoucherModel voucher);
         Task<bool> DeleteVoucherAsync(int id);
         Task<bool> IsVoucherCodeUniqueAsync(string voucherCode);
+        Task<int> CreateOrUpdateVoucher(CreateOrUpdateVoucherRequest request);
+        Task<List<CreateOrUpdateVoucherRequest>> GetAllVouchers();
     }
 }

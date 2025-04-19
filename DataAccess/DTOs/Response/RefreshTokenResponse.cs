@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTOs.Response
 {
-    public class RefreshTokenResponse : Request
+    public class RefreshTokenResponse : Response
     {
         public string? RefreshToken { get; set; }
     }

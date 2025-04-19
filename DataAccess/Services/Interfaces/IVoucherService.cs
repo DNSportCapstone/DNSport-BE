@@ -11,7 +11,8 @@ namespace Services.Interfaces
         Task<VoucherResponse> GetVoucherByIdAsync(int id);
         Task<VoucherResponse> UpdateVoucherAsync(int id, UpdateVoucherRequest request);
         Task<bool> DeleteVoucherAsync(int id);
-        Task<bool> IsVoucherCodeUniqueAsync(string voucherCode); 
-
+        Task<bool> IsVoucherCodeUniqueAsync(string voucherCode);
+        Task<int> CreateOrUpdateVoucher(CreateOrUpdateVoucherRequest request);
+        Task<List<CreateOrUpdateVoucherRequest>> GetAllVouchers();
     }
 }

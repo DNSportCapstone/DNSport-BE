@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using BusinessObject.Models;
+using DataAccess.DTOs.Request;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -59,5 +60,34 @@ public class VoucherRepository : IVoucherRepository
     public async Task<bool> IsVoucherCodeUniqueAsync(string voucherCode)
     {
         return !await _dbcontext.Vouchers.AnyAsync(v => v.VoucherCode == voucherCode);
+    }
+
+    public async Task<int> CreateOrUpdateVoucher(CreateOrUpdateVoucherRequest model)
+    {
+        var voucher = await _dbcontext.Vouchers.FirstOrDefaultAsync(v => v.VoucherId == model.VoucherId) ?? new Voucher();
+        voucher.VoucherCode = model.VoucherCode;
+        voucher.DiscountPercentage = model.DiscountPercentage;
+        voucher.ExpiryDate = model.ExpirationDate;
+
+        if (voucher.VoucherId == 0)
+        {
+            await _dbcontext.Vouchers.AddAsync(voucher);
+        }
+        await _dbcontext.SaveChangesAsync();
+        return voucher.VoucherId;
+    }
+
+    public async Task<List<CreateOrUpdateVoucherRequest>> GetAllVouchers()
+    {
+        var result = await _dbcontext.Vouchers
+            .Select(v => new CreateOrUpdateVoucherRequest
+            {
+                VoucherId = v.VoucherId,
+                VoucherCode = v.VoucherCode,
+                DiscountPercentage = (int)v.DiscountPercentage,
+                ExpirationDate = (DateTime)v.ExpiryDate
+            })
+            .ToListAsync();
+        return result;
     }
 }

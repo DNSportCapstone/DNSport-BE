@@ -47,7 +47,11 @@ namespace DataAccess.Services.Implement
 
                 if (payload == null)
                 {
-
+                    return new GoogleLoginResponse
+                    {
+                        IsError = true,
+                        Message = "Lỗi con mẹ mày rồi"
+                    };
                 }
 
                 var userModel = await _userRepository.GetUserByEmail(payload.Email);
