@@ -24,7 +24,7 @@ namespace DataAccess.Services.Implement
         public async Task<List<GetFieldResponse>> GetAllFieldsAsync()
         {
             var fields = await _fieldRepository.GetAllFieldsAsync();
-            return fields.Select(f => new GetFieldResponse
+            return fields.Where(f => f.Status == "Active").Select(f => new GetFieldResponse
             {
                 FieldId = f.FieldId,
                 StadiumId = f.StadiumId ?? 0, 
@@ -114,5 +114,6 @@ namespace DataAccess.Services.Implement
             return await _fieldRepository.GetFieldsByStadiumId(stadiumId);
 
         }
+
     }
 }

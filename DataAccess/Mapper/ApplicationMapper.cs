@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +24,7 @@ namespace DataAccess.Mapper
             CreateMap<CreateVoucherRequest, VoucherModel>().ReverseMap();
             CreateMap<UpdateVoucherRequest, VoucherModel>().ReverseMap();
             CreateMap<VoucherModel, VoucherResponse>().ReverseMap();
+            CreateMap<VoucherModel, CreateVoucherResponse>();
             CreateMap<Voucher, VoucherResponse>().ReverseMap();
             CreateMap<Voucher, CreateVoucherResponse>().ReverseMap();
         }

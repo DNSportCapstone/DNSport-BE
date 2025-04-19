@@ -51,8 +51,7 @@ namespace Presentation.Controllers
                 return NotFound("Field not found");
             }
             return Ok(field);
-        }
-
+        }      
     }
 
 }

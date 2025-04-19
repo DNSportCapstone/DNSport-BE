@@ -82,6 +82,7 @@ builder.Services.AddSingleton<IVnpay, Vnpay>();
 builder.Services.AddTransient<VnpayPayment>();
 builder.Services.AddScoped<IFieldService, FieldService>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
+builder.Services.AddScoped<IRevenueTransactionRepository, RevenueTransactionRepository>();
 
 
 // Service
@@ -95,6 +96,7 @@ builder.Services.AddHttpClient<IGoMapsService, GoMapsService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStadiumService, StadiumService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
+builder.Services.AddScoped<IRevenueTransactionService, RevenueTransactionService>();
 
 
 var corsSettings = builder.Configuration.GetSection("CORS");

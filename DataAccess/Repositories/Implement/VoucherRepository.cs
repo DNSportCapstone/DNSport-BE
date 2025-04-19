@@ -39,10 +39,13 @@ public class VoucherRepository : IVoucherRepository
 
     public async Task<bool> UpdateVoucherAsync(VoucherModel voucherModel)
     {
-        var voucher = _mapper.Map<Voucher>(voucherModel);
-        _dbcontext.Vouchers.Update(voucher);
+        var existingEntity = await _dbcontext.Vouchers.FindAsync(voucherModel.VoucherId);
+        if (existingEntity == null) return false;
+
+        _mapper.Map(voucherModel, existingEntity); // cập nhật vào entity đang được tracked
         return await _dbcontext.SaveChangesAsync() > 0;
     }
+
 
     public async Task<bool> DeleteVoucherAsync(int id)
     {

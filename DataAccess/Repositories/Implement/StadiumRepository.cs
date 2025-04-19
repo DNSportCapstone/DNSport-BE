@@ -59,5 +59,24 @@ namespace DataAccess.Repositories.Implement
         {
             return await _stadiumDAO.DisableStadium(id, status);
         }
+        public async Task<List<StadiumModel>> GetStadiumsByUserId(int userId)
+        {
+            var result = await (from s in _dbcontext.Stadiums
+                                join u in _dbcontext.Users on s.UserId equals u.UserId
+                                where s.UserId == userId
+                                select new StadiumModel
+                                {
+                                    StadiumId = s.StadiumId,
+                                    UserId = s.UserId,
+                                    StadiumName = s.StadiumName,
+                                    Address = s.Address,
+                                    Image = s.Image,
+                                    Status = s.Status,
+                                    Owner = u.Email
+                                }).AsNoTracking().ToListAsync();
+
+            return result;
+        }
+
     }
 }
