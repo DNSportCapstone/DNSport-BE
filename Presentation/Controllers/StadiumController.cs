@@ -48,5 +48,15 @@ namespace Presentation.Controllers
             var result = await _fieldRepository.GetFieldHomeData();
             return Ok(result);
         }
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetStadiumsByUserId(int userId)
+        {
+            var stadiums = await _stadiumService.GetStadiumsByUserId(userId);
+            if (stadiums == null || !stadiums.Any())
+                return NotFound("No stadiums found for this user.");
+
+            return Ok(stadiums);
+        }
+
     }
 }

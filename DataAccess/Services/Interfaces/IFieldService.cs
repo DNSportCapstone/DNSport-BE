@@ -11,6 +11,7 @@ namespace DataAccess.Services.Interfaces
         Task<RegisterFieldResponse> RegisterFieldAsync(RegisterFieldRequest request);
         Task<UpdateFieldResponse> EditFieldAsync(EditFieldRequest request);
         Task<List<FieldModel>> GetFieldsByStadiumId(int stadiumId);
+        Task<GetFieldResponse> GetFieldByIdAsync(int fieldId);
         Task<int> SetFieldStatus(FieldStatusRequest request);
     }
 }

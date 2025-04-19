@@ -2,6 +2,7 @@
 using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Interfaces;
 
 namespace Presentation.Controllers
 {
@@ -75,7 +76,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost("create-voucher")]
-        public async Task<IActionResult> CreateVoucher([FromBody] CreateVoucherRequest request)
+        public async Task<IActionResult> CreateVoucher([FromBody] CreateOrUpdateVoucherRequest request)
         {
             var result = await _voucherService.CreateOrUpdateVoucher(request);
             return Ok(result);
@@ -89,7 +90,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost("create-or-update-voucher")]
-        public async Task<IActionResult> CreateOrUpdateVoucher([FromBody] CreateVoucherRequest request)
+        public async Task<IActionResult> CreateOrUpdateVoucher([FromBody] CreateOrUpdateVoucherRequest request)
         {
             var result = await _voucherService.CreateOrUpdateVoucher(request);
             return Ok(result);
