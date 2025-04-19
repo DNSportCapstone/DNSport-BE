@@ -17,7 +17,7 @@ namespace DataAccess.Services.Implement
 {
     public class GoMapsService : IGoMapsService
     {
-        private readonly string GoMapsApiKey = "AlzaSyUfzCeRZ3dFPIhYaQkL1lEPICq4WRjGQPT";
+        private readonly string GoMapsApiKey = "AlzaSyTuknG7voM-6dBXwJ9kqcdxeh_Pu-LFIpd";
         private const string GoMapsBaseUrl = "https://maps.gomaps.pro/maps/api";
         private readonly string RoadsBaseUrl = "https://roads.gomaps.pro/v1";
         private readonly HttpClient _httpClient;
