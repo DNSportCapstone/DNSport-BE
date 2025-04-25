@@ -3,10 +3,15 @@
     public class FieldModel
     {
         public int FieldId { get; set; }
+        public string StadiumName { get; set; }
+        public string FieldName { get; set; }
+        public string Thumbnail { get; set; } 
         public string Description { get; set; }
         public decimal DayPrice { get; set; }
         public decimal NightPrice { get; set; }
+        public int MaximumPeople { get; set; }
         public string Status { get; set; }
+
 
         // List of Images
         public List<ImageModel> Images { get; set; }

@@ -59,5 +59,35 @@ namespace DataAccess.Repositories.Implement
         {
             return await _stadiumDAO.DisableStadium(id, status);
         }
+
+        public async Task<IEnumerable<StadiumLessorModel>> GetStadiumsByLessorIdAsync(int userId)
+        {
+            var user = await _dbcontext.Set<User>()
+                .Include(u => u.UserDetail)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+                throw new Exception("User not found.");
+
+            if (user.RoleId != 2)
+                throw new Exception("User is not a lessor.");
+
+            var stadiums = await _dbcontext.Set<Stadium>()
+                .Where(s => s.UserId == userId)
+                .Select(s => new StadiumLessorModel
+                {
+                    StadiumId = s.StadiumId,
+                    StadiumName = s.StadiumName,
+                    Address = s.Address,
+                    Status = s.Status,
+                    LessorName = user.UserDetail.FullName,
+                    Email = user.Email
+                })
+                .ToListAsync();
+
+            return stadiums;
+        }
+
+
     }
 }

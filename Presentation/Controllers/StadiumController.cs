@@ -1,6 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using DataAccess.Model;
+using DataAccess.Repositories.Implement;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -48,5 +49,21 @@ namespace Presentation.Controllers
             var result = await _fieldRepository.GetFieldHomeData();
             return Ok(result);
         }
+
+        [HttpGet("lessor/{userId}")]
+        public async Task<IActionResult> GetStadiumsByLessorId(int userId)
+        {
+            try
+            {
+                var result = await _stadiumService.GetStadiumsByLessorIdAsync(userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
     }
 }
