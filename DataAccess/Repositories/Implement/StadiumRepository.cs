@@ -59,6 +59,35 @@ namespace DataAccess.Repositories.Implement
         {
             return await _stadiumDAO.DisableStadium(id, status);
         }
+
+        public async Task<IEnumerable<StadiumLessorModel>> GetStadiumsByLessorIdAsync(int userId)
+        {
+            var user = await _dbcontext.Set<User>()
+                .Include(u => u.UserDetail)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+                throw new Exception("User not found.");
+
+            if (user.RoleId != 2)
+                throw new Exception("User is not a lessor.");
+
+            var stadiums = await _dbcontext.Set<Stadium>()
+                .Where(s => s.UserId == userId)
+                .Select(s => new StadiumLessorModel
+                {
+                    StadiumId = s.StadiumId,
+                    StadiumName = s.StadiumName,
+                    Address = s.Address,
+                    Status = s.Status,
+                    LessorName = user.UserDetail.FullName,
+                    Email = user.Email
+                })
+                .ToListAsync();
+
+            return stadiums;
+        }
+
         public async Task<List<StadiumModel>> GetStadiumsByUserId(int userId)
         {
             var result = await (from s in _dbcontext.Stadiums
@@ -76,6 +105,38 @@ namespace DataAccess.Repositories.Implement
                                 }).AsNoTracking().ToListAsync();
 
             return result;
+        }
+        // StadiumRepository.cs
+        public async Task<List<StadiumModel>> GetPendingStadiums()
+        {
+            var pendingStadiums = await _dbcontext.Stadiums
+                .Where(s => s.Status == "Pending")
+                .Select(s => new StadiumModel
+                {
+                    StadiumId = s.StadiumId,
+                    UserId = s.UserId,
+                    StadiumName = s.StadiumName,
+                    Address = s.Address,
+                    Image = s.Image,
+                    Status = s.Status
+                })
+                .AsNoTracking()
+                .ToListAsync();
+            return pendingStadiums;
+        }
+
+        public async Task<bool> UpdateStadiumStatus(int stadiumId, string newStatus)
+        {
+            var stadium = await _dbcontext.Stadiums.FirstOrDefaultAsync(s => s.StadiumId == stadiumId && s.Status == "Pending");
+
+            if (stadium == null)
+            {
+                return false;
+            }
+
+            stadium.Status = newStatus;
+            await _dbcontext.SaveChangesAsync();
+            return true;
         }
 
     }
