@@ -31,6 +31,8 @@ public partial class Db12353Context : DbContext
 
     public virtual DbSet<Image> Images { get; set; }
 
+    public virtual DbSet<LessorContact> LessorContacts { get; set; }
+
     public virtual DbSet<Notification> Notifications { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
@@ -212,6 +214,22 @@ public partial class Db12353Context : DbContext
             entity.HasOne(d => d.Field).WithMany(p => p.Images)
                 .HasForeignKey(d => d.FieldId)
                 .HasConstraintName("FK__Image__FieldId__0C85DE4D");
+        });
+
+        modelBuilder.Entity<LessorContact>(entity =>
+        {
+            entity.HasKey(e => e.ContactId);
+
+            entity.ToTable("LessorContact");
+
+            entity.Property(e => e.Address).HasMaxLength(100);
+            entity.Property(e => e.CreateAt).HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(50);
+            entity.Property(e => e.FullName).HasMaxLength(100);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(50);
+            entity.Property(e => e.Status)
+                .HasMaxLength(10)
+                .IsFixedLength();
         });
 
         modelBuilder.Entity<Notification>(entity =>
