@@ -19,6 +19,11 @@ public partial class Field
 
     public string? Status { get; set; }
 
+    public string? FieldName { get; set; }
+
+    public int? MaximumPeople { get; set; }
+
+
     public virtual ICollection<BookingField> BookingFields { get; set; } = new List<BookingField>();
 
     public virtual ICollection<Image> Images { get; set; } = new List<Image>();
