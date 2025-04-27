@@ -123,5 +123,25 @@ namespace Presentation.Controllers
             var result = await _bookingService.GetFieldReportList();
             return Ok(result);
         }
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPendingStadiums()
+        {
+            var stadiums = await _stadiumService.GetPendingStadiumsAsync();
+            return Ok(stadiums);
+        }
+
+        [HttpPut("update-status")]
+        public async Task<IActionResult> UpdateStadiumStatus([FromBody] UpdateStadiumStatusRequest request)
+        {
+            var result = await _stadiumService.UpdateStadiumStatusAsync(request);
+
+            if (!result)
+            {
+                return BadRequest("Stadium not found or status is not pending.");
+            }
+
+            return Ok("Status updated successfully.");
+        }
+
     }
 }

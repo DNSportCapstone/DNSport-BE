@@ -106,5 +106,38 @@ namespace DataAccess.Repositories.Implement
 
             return result;
         }
+        // StadiumRepository.cs
+        public async Task<List<StadiumModel>> GetPendingStadiums()
+        {
+            var pendingStadiums = await _dbcontext.Stadiums
+                .Where(s => s.Status == "Pending")
+                .Select(s => new StadiumModel
+                {
+                    StadiumId = s.StadiumId,
+                    UserId = s.UserId,
+                    StadiumName = s.StadiumName,
+                    Address = s.Address,
+                    Image = s.Image,
+                    Status = s.Status
+                })
+                .AsNoTracking()
+                .ToListAsync();
+            return pendingStadiums;
+        }
+
+        public async Task<bool> UpdateStadiumStatus(int stadiumId, string newStatus)
+        {
+            var stadium = await _dbcontext.Stadiums.FirstOrDefaultAsync(s => s.StadiumId == stadiumId && s.Status == "Pending");
+
+            if (stadium == null)
+            {
+                return false;
+            }
+
+            stadium.Status = newStatus;
+            await _dbcontext.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

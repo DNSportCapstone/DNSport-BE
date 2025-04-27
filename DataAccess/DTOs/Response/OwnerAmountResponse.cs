@@ -9,5 +9,6 @@ namespace DataAccess.DTOs.Response
     public class OwnerAmountResponse
     {
         public decimal OwnerAmount { get; set; }
+        public DateTime? RevenueTransactionDate { get; set; }
     }
 }
