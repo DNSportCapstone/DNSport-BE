@@ -22,7 +22,7 @@ namespace DataAccess.Services.Implement
         public async Task<List<GetFieldResponse>> GetAllFieldsAsync()
         {
             var fields = await _fieldRepository.GetAllFieldsAsync();
-            return fields.Select(f => new GetFieldResponse
+            return fields.Where(f => f.Status == "Active").Select(f => new GetFieldResponse
             {
                 FieldId = f.FieldId,
                 StadiumId = f.StadiumId ?? 0,
@@ -35,11 +35,33 @@ namespace DataAccess.Services.Implement
                 ImageUrls = f.Images.Select(i => i.Url).ToList()
             }).ToList();
         }
+        public async Task<GetFieldResponse> GetFieldByIdAsync(int fieldId)
+        {
+            var field = await _fieldRepository.GetFieldByIdAsync(fieldId);
+            if (field == null)
+            {
+                return null; // Hoặc throw lỗi 404
+            }
+
+            return new GetFieldResponse
+            {
+                FieldId = field.FieldId,
+                StadiumId = field.StadiumId ?? 0,
+                SportId = field.SportId ?? 0,
+                Description = field.Description,
+                DayPrice = field.DayPrice ?? 0,
+                NightPrice = field.NightPrice ?? 0,
+                Status = field.Status,
+                ImageUrls = field.Images?.Select(i => i.Url).ToList() ?? new List<string>()
+            };
+        }
 
         public async Task<RegisterFieldResponse> RegisterFieldAsync(RegisterFieldRequest request)
         {
             var field = new Field
             {
+                SportId = request.SportId,
+                StadiumId = request.StadiumId,
                 Description = request.Description,
                 DayPrice = request.DayPrice,
                 NightPrice = request.NightPrice,
@@ -68,18 +90,18 @@ namespace DataAccess.Services.Implement
                 return new UpdateFieldResponse { Message = "Field not found." };
             }
 
+            field.SportId = request.SportId;
+            field.StadiumId = request.StadiumId;
             field.Description = request.Description;
             field.DayPrice = request.DayPrice;
             field.NightPrice = request.NightPrice;
             field.Status = request.Status;
 
             await _fieldRepository.UpdateFieldAsync(field);
-
             if (request.ImageUrls?.Any() == true)
             {
-                await _fieldRepository.UpdateFieldImagesAsync(field.FieldId, request.ImageUrls);
-            }
-
+                await _fieldRepository.AddImagesToFieldAsync(field.FieldId, request.ImageUrls);
+            }          
             return new UpdateFieldResponse
             {
                 FieldId = field.FieldId,
@@ -117,6 +139,11 @@ namespace DataAccess.Services.Implement
                                                   ");
             }
             return result;
+        }
+        public async Task<FieldModel> GetFieldById(int fieldId)
+        {
+            return await _fieldRepository.GetFieldById(fieldId);
+
         }
     }
 }

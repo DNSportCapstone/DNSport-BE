@@ -1,4 +1,5 @@
-﻿using DataAccess.Repositories.Interfaces;
+﻿using DataAccess.Model;
+using DataAccess.Repositories.Interfaces;
 using DataAccess.Services.Interfaces;
 
 namespace DataAccess.Services.Implement
@@ -14,5 +15,11 @@ namespace DataAccess.Services.Implement
         {
             return await _stadiumRepository.DisableStadium(id, status);
         }
+        public async Task<List<StadiumModel>> GetStadiumsByUserId(int userId)
+        {
+            return await _stadiumRepository.GetStadiumsByUserId(userId);
+        }
+
     }
+
 }

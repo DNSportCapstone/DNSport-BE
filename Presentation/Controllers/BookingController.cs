@@ -89,5 +89,20 @@ namespace Presentation.Controllers
             var result = await _bookingService.GetTransactionLog(userId);
             return Ok(result);
         }
+        [HttpPost("recurring")]
+        public async Task<IActionResult> CreateRecurringBookings(RecurringBookingRequest  request)
+        {
+            if (request == null)
+                return BadRequest("Invalid Data");
+
+            var bookingId = await _bookingService.CreateRecurringBookings(request);
+
+            if (bookingId == 0)
+            {
+                return Ok(new { IsSuccess = false });
+            }
+
+            return Ok(new { IsSuccess = true, BookingId = bookingId });
+        }
     }
 }

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Services.Interfaces;
 using System.Text;
 using VNPAY.NET;
 
@@ -85,8 +86,9 @@ builder.Services.AddScoped<IVnpay, Vnpay>();
 builder.Services.AddTransient<VnpayPayment>();
 builder.Services.AddScoped<IFieldService, FieldService>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
+builder.Services.AddScoped<IRevenueTransactionRepository, RevenueTransactionRepository>();
 builder.Services.AddScoped<IRefundRepository, RefundRepository>();
-
+builder.Services.AddScoped<ILessorRepository, LessorRepository>();
 
 // Service
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -99,7 +101,8 @@ builder.Services.AddHttpClient<IGoMapsService, GoMapsService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStadiumService, StadiumService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
-
+builder.Services.AddScoped<IRevenueTransactionService, RevenueTransactionService>();
+builder.Services.AddScoped<ILessorService, LessorService>();
 
 var corsSettings = builder.Configuration.GetSection("CORS");
 var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();

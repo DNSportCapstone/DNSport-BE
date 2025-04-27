@@ -1,4 +1,6 @@
-﻿namespace DataAccess.Model
+﻿using BusinessObject.Models;
+
+namespace DataAccess.Model
 {
     public class FieldModel
     {
@@ -16,5 +18,7 @@
         // List of Images
         public List<ImageModel> Images { get; set; }
         public virtual ICollection<BookingFieldModel> BookingFields { get; set; } = new List<BookingFieldModel>();
+        public virtual SportModel? Sport { get; set; }
+        public virtual StadiumModel? Stadium { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataAccess.Common;
 using DataAccess.DAO;
 using DataAccess.DTOs.Request;
 using DataAccess.Model;
@@ -263,6 +264,140 @@ namespace DataAccess.Repositories.Implement
                 report.Status = status;
                 await _dbContext.SaveChangesAsync();
                 return report.DenounceId;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+        public void AddTransactionLogAndRevenueTransaction(int bookingId)
+        {
+            try
+            {
+                var booking = _dbContext.Bookings.Find(bookingId);
+
+                var transactionLog = new TransactionLog
+                {
+                    BookingId = booking.BookingId,
+                    UserId = booking.UserId,
+                    TimeSlot = DateTime.UtcNow,
+                    TransactionType = "Banking",
+                    ErrorMessage = string.Empty,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                };
+
+                var revenueTransaction = new RevenueTransaction
+                {
+                    BookingId = booking.BookingId,
+                    TotalRevenue = booking.TotalPrice,
+                    AdminAmount = 90,
+                    OwnerAmount = 10,
+                    RevenueTransactionDate = DateTime.UtcNow,
+                    Status = "Pending",
+                };
+
+                _dbContext.TransactionLogs.Add(transactionLog);
+                _dbContext.RevenueTransactions.Add(revenueTransaction);
+                _dbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+        public async Task<int> CreateRecurringBookings(RecurringBookingRequest request)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var totalPrice = 0m;
+                var booking = new Booking
+                {
+                    UserId = request.UserId,
+                    BookingDate = DateTime.UtcNow,
+                    Status = Constants.BookingStatus.PendingPayment
+                };
+
+                for (int i = 0; i < request.RepeatWeeks; i++)
+                {
+                    var targetDate = request.StartDate.AddDays(7 * i);
+                    while ((int)targetDate.DayOfWeek != request.Weekday)
+                        targetDate = targetDate.AddDays(1);
+
+                    foreach (var slot in request.SelectedSlots.Where(s => s.IsChoose))
+                    {
+                        var startTime = targetDate.Date.Add(TimeSpan.Parse(slot.Time));
+                        var endTime = startTime.AddMinutes(slot.Duration);
+
+                        // Check trùng slot
+                        var isExist = await _dbContext.BookingFields.AnyAsync(bf =>
+                            bf.FieldId == request.FieldId &&
+                            bf.Date == targetDate.Date &&
+                            ((startTime >= bf.StartTime && startTime < bf.EndTime) ||
+                             (endTime > bf.StartTime && endTime <= bf.EndTime) ||
+                             (startTime <= bf.StartTime && endTime >= bf.EndTime)));
+
+                        if (isExist)
+                        {
+                            await transaction.RollbackAsync();
+                            return 0;
+                        }
+
+                        var bookingField = new BookingField
+                        {
+                            FieldId = request.FieldId,
+                            StartTime = startTime,
+                            EndTime = endTime,
+                            Date = targetDate.Date,
+                            Price = slot.Price
+                        };
+
+                        totalPrice += slot.Price;
+
+                        foreach (var serviceId in request.ServiceIds)
+                        {
+                            var service = await _dbContext.Services.FindAsync(serviceId);
+                            if (service != null)
+                            {
+                                var bfService = new BookingFieldService
+                                {
+                                    ServiceId = service.ServiceId,
+                                    Price = service.Price,
+                                    Quantity = 1,
+                                    TotalPrice = service.Price
+                                };
+
+                                totalPrice += bfService.TotalPrice ?? 0m;
+                                bookingField.BookingFieldServices.Add(bfService);
+                            }
+                        }
+
+                        booking.BookingFields.Add(bookingField);
+                    }
+                }
+
+                booking.TotalPrice = totalPrice;
+
+                _dbContext.Bookings.Add(booking);
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return booking.BookingId;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return 0;
+            }
+        }
+        public decimal GetTotalPriceWithVoucher(int bookingId)
+        {
+            try
+            {
+                var booking = _dbContext.Bookings.Find(bookingId);
+                var totalPriceWithVoucher = booking?.TotalPrice ?? 0;
+                return totalPriceWithVoucher;
             }
             catch (Exception)
             {

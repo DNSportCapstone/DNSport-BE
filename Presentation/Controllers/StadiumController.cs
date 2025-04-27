@@ -64,6 +64,14 @@ namespace Presentation.Controllers
             }
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetStadiumsByUserId(int userId)
+        {
+            var stadiums = await _stadiumService.GetStadiumsByUserId(userId);
+            if (stadiums == null || !stadiums.Any())
+                return NotFound("No stadiums found for this user.");
 
+            return Ok(stadiums);
+        }
     }
 }
