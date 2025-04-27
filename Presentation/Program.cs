@@ -88,7 +88,7 @@ builder.Services.AddScoped<IFieldService, FieldService>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 builder.Services.AddScoped<IRevenueTransactionRepository, RevenueTransactionRepository>();
 builder.Services.AddScoped<IRefundRepository, RefundRepository>();
-
+builder.Services.AddScoped<ILessorRepository, LessorRepository>();
 
 // Service
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -102,6 +102,7 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStadiumService, StadiumService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IRevenueTransactionService, RevenueTransactionService>();
+builder.Services.AddScoped<ILessorService, LessorService>();
 
 var corsSettings = builder.Configuration.GetSection("CORS");
 var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();

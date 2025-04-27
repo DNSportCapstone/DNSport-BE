@@ -60,12 +60,11 @@ namespace DataAccess.Services.Implement
                     userModel = new UserModel
                     {
                         Email = payload.Email,
-                        RoleId = 1,
+                        RoleId = 3,
                         Status = "Active",
                         CreatedAt = DateTime.UtcNow
                     };
-                    await _userRepository.AddNewUser(userModel);
-
+                    userModel = await _userRepository.AddNewUser(userModel);
                     var userDetailModel = new UserDetailModel
                     {
                         UserId = userModel.UserId,
@@ -81,7 +80,7 @@ namespace DataAccess.Services.Implement
                     return new GoogleLoginResponse { Message = "User is not Active", Error = "Invalid User" };
                 }
 
-                var accessToken = Helper.GenerateJwtToken(userModel, 30, _jwtSecret, _configuration); // 30min
+                var accessToken = Helper.GenerateJwtToken(userModel, 180, _jwtSecret, _configuration); // 30min
 
                 return new GoogleLoginResponse { AccessToken = accessToken };
             }
