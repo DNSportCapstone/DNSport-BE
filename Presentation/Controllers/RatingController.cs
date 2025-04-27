@@ -54,13 +54,21 @@ namespace API.Controllers
             return Ok(new { HasRated = rating != null });
         }
 
-        //Lấy danh sách comment của một sân
-        [HttpGet("field/{fieldId}/comments")]
+        // API để lấy danh sách comment của một sân
+        [HttpGet("comments/{fieldId}")]
         public async Task<IActionResult> GetCommentsByFieldId(int fieldId)
         {
-            var comments = await _ratingRepository.GetCommentsByFieldIdAsync(fieldId);
-            return Ok(comments);
+            try
+            {
+                var comments = await _ratingRepository.GetCommentsByFieldIdAsync(fieldId);
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
 
     }
 }

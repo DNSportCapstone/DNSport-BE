@@ -26,7 +26,9 @@ namespace DataAccess.Services.Implement
             {
                 FieldId = f.FieldId,
                 StadiumId = f.StadiumId ?? 0,
+                FieldName = f.FieldName,
                 SportId = f.SportId ?? 0,
+                MaximumPeople = f.MaximumPeople ?? 0,
                 Description = f.Description,
                 DayPrice = f.DayPrice ?? 0,
                 NightPrice = f.NightPrice ?? 0,
