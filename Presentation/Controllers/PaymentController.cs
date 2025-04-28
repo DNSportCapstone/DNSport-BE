@@ -77,7 +77,7 @@ namespace Presentation.Controllers
                     var paymentResult = _vnpay.GetPaymentResult(Request.Query);
                     if (paymentResult.IsSuccess && int.TryParse(paymentResult.Description, out int bookingId))
                     {
-                        if (_bookingService.UpdateBookingStatus(bookingId, Constants.BookingStatus.Paid))
+                        if (_bookingService.UpdateBookingStatus(bookingId, Constants.BookingStatus.Success))
                         {
                             _bookingService.AddTransactionLogAndRevenueTransaction(bookingId);
                             return Ok();
@@ -190,7 +190,7 @@ namespace Presentation.Controllers
             {
                 var webhookData = _payOS.verifyPaymentWebhookData(webhookBody);
 
-                if (_bookingService.UpdateBookingStatus((int)webhookData.orderCode, Constants.BookingStatus.Paid))
+                if (_bookingService.UpdateBookingStatus((int)webhookData.orderCode, Constants.BookingStatus.Success))
                 {
                     _bookingService.AddTransactionLogAndRevenueTransaction((int)webhookData.orderCode);
                     return Ok();

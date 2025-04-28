@@ -27,7 +27,7 @@ namespace DataAccess.Repositories.Implement
                                 join s in _dbContext.Stadiums on f.StadiumId equals s.StadiumId
                                 join d in _dbContext.Denounces on b.BookingId equals d.BookingId into denounceJoin
                                 from d in denounceJoin.DefaultIfEmpty()
-                                where b.Status == "Success" && b.UserId == userId
+                                where b.Status == Constants.BookingStatus.Success && b.UserId == userId
                                 select new BookingHistoryModel
                                 {
                                     BookingId = b.BookingId,
