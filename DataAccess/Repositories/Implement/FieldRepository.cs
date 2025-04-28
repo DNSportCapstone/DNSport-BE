@@ -47,7 +47,7 @@ namespace DataAccess.Repositories.Implement
         }
         public async Task<Field?> GetFieldByIdAsync(int fieldId)
         {
-            return await _dbcontext.Fields.Include(f => f.Stadium).FirstOrDefaultAsync(f => f.FieldId == fieldId);
+            return await _dbcontext.Fields.Include(f => f.Stadium).Include(f => f.Images).FirstOrDefaultAsync(f => f.FieldId == fieldId);
         }
         //Update New Field 
         public async Task UpdateFieldAsync(Field field)

@@ -287,12 +287,14 @@ namespace DataAccess.Repositories.Implement
                     UpdatedAt = DateTime.UtcNow,
                 };
 
+                var lessorPercentage = booking.TotalPrice * booking.BookingFields.First().Field?.Stadium?.RevenueSharings.First().LessorPercentage;
+
                 var revenueTransaction = new RevenueTransaction
                 {
                     BookingId = booking.BookingId,
                     TotalRevenue = booking.TotalPrice,
-                    AdminAmount = 90,
-                    OwnerAmount = 10,
+                    AdminAmount = booking.TotalPrice * (1-lessorPercentage),
+                    OwnerAmount = booking.TotalPrice * lessorPercentage,
                     RevenueTransactionDate = DateTime.UtcNow,
                     Status = "Pending",
                 };
