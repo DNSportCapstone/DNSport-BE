@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Net.payOS;
 using Services.Interfaces;
 using System.Text;
 using VNPAY.NET;
@@ -28,6 +29,12 @@ builder.Services.AddControllers()
     .AddOData(opt => opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(int.MaxValue));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSingleton<PayOS>(sp =>
+    new PayOS(
+        builder.Configuration["PayOS:ClientId"],
+        builder.Configuration["PayOS:APIKey"],
+        builder.Configuration["PayOS:ChecksumKey"]
+    ));
 builder.Services.AddScoped<IFieldRepository, FieldRepository>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 var MaillSettings = configuration.GetSection("MaillSettings");
