@@ -61,8 +61,8 @@ namespace DataAccess.Repositories.Implement
             {
                 FieldId = fieldId,
                 Url = url,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow.AddHours(7),
+                UpdatedAt = DateTime.UtcNow.AddHours(7)
             }).ToList();
 
             await _dbcontext.Images.AddRangeAsync(images);

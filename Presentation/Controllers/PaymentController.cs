@@ -212,5 +212,19 @@ namespace Presentation.Controllers
                 return Ok(new { Message = $"Webhook processing failed: {ex.Message}" });
             }
         }
+        [HttpPost("test")]
+        public async Task<IActionResult> Test([FromBody] int bookingId)
+        {
+            try
+            {
+                
+                _bookingService.AddTransactionLogAndRevenueTransaction(bookingId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Message = $"Webhook processing failed: {ex.Message}" });
+            }
+        }
     }
 }

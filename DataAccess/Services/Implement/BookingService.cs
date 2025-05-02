@@ -44,7 +44,7 @@ namespace DataAccess.Services.Implement
                 var booking = new Booking
                 {
                     UserId = request.Fields.FirstOrDefault()?.UserId,
-                    BookingDate = DateTime.UtcNow,
+                    BookingDate = DateTime.UtcNow.AddHours(7),
                     Status = Constants.BookingStatus.PendingPayment
                 };
 

@@ -62,7 +62,7 @@ namespace DataAccess.Services.Implement
                         Email = payload.Email,
                         RoleId = 3,
                         Status = "Active",
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow.AddHours(7)
                     };
                     userModel = await _userRepository.AddNewUser(userModel);
                     var userDetailModel = new UserDetailModel

@@ -169,7 +169,7 @@ namespace DataAccess.Repositories.Implement
                     ReceiveId = lessor.UserId,
                     BookingId = bookingReport.BookingId,
                     Description = bookingReport.Description,
-                    DenounceTime = DateTime.UtcNow,
+                    DenounceTime = DateTime.UtcNow.AddHours(7),
                     Status = "Pending"
                 };
 
@@ -280,23 +280,23 @@ namespace DataAccess.Repositories.Implement
                 {
                     BookingId = booking.BookingId,
                     UserId = booking.UserId,
-                    TimeSlot = DateTime.UtcNow,
+                    TimeSlot = DateTime.UtcNow.AddHours(7),
                     TransactionType = "Banking",
                     ErrorMessage = string.Empty,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    UpdatedAt = DateTime.UtcNow.AddHours(7),
                 };
 
-                var lessorPercentage = booking.TotalPrice * booking.BookingFields.First().Field?.Stadium?.RevenueSharings.First().LessorPercentage;
+                var lessorPercentage = booking.BookingFields.First().Field?.Stadium?.RevenueSharings.First().LessorPercentage ?? 90;
 
                 var revenueTransaction = new RevenueTransaction
                 {
                     BookingId = booking.BookingId,
                     TotalRevenue = booking.TotalPrice,
-                    AdminAmount = booking.TotalPrice * (1-lessorPercentage),
-                    OwnerAmount = booking.TotalPrice * lessorPercentage,
-                    RevenueTransactionDate = DateTime.UtcNow,
-                    Status = "Pending",
+                    AdminAmount = booking.TotalPrice * (100-lessorPercentage)/100,
+                    OwnerAmount = booking.TotalPrice * lessorPercentage/100,
+                    RevenueTransactionDate = DateTime.UtcNow.AddHours(7),
+                    Status = "Success",
                 };
 
                 _dbContext.TransactionLogs.Add(transactionLog);
@@ -317,7 +317,7 @@ namespace DataAccess.Repositories.Implement
                 var booking = new Booking
                 {
                     UserId = request.UserId,
-                    BookingDate = DateTime.UtcNow,
+                    BookingDate = DateTime.UtcNow.AddHours(7),
                     Status = Constants.BookingStatus.PendingPayment
                 };
 
