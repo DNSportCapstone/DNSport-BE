@@ -52,7 +52,7 @@ namespace DataAccess.Repositories.Implement
                         Email = contact.Email,
                         RoleId = 2,
                         Status = "Active",
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow.AddHours(7)
                     };
                     await _dbContext.Users.AddAsync(lessor);
                     await _dbContext.SaveChangesAsync();
