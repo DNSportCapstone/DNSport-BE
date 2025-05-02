@@ -188,20 +188,28 @@ namespace Presentation.Controllers
         {
             try
             {
+                if (webhookBody == null)
+                {
+                    return Ok(new { Message = "Webhook body is null" });
+                }
+
+                if (!webhookBody.success)
+                {
+                    return Ok(new { Message = $"Failed" });
+                }
+
                 var webhookData = _payOS.verifyPaymentWebhookData(webhookBody);
 
                 if (_bookingService.UpdateBookingStatus((int)webhookData.orderCode, Constants.BookingStatus.Success))
                 {
                     _bookingService.AddTransactionLogAndRevenueTransaction((int)webhookData.orderCode);
-                    return Ok();
                 }
 
                 return Ok();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in Webhook: {ex.Message}");
-                return BadRequest(ex);
+                return Ok(new { Message = $"Webhook processing failed: {ex.Message}" });
             }
         }
     }
