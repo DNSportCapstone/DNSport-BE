@@ -18,5 +18,7 @@ namespace DataAccess.DTOs.Response
         public string? FieldName { get; set; }
         public int? MaximumPeople { get; set; }
         public List<string> ImageUrls { get; set; }
+        public string? StadiumName { get; set; }
+        public string? Address { get; set; }
     }
 }

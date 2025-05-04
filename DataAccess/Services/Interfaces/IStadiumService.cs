@@ -11,6 +11,6 @@ namespace DataAccess.Services.Interfaces
         Task<List<StadiumModel>> GetStadiumsByUserId(int userId);
         Task<List<StadiumResponse>> GetPendingStadiumsAsync();
         Task<bool> UpdateStadiumStatusAsync(UpdateStadiumStatusRequest request);
-
+        Task<List<StadiumModel>> GetStadiumByName(string stadiumName);
     }
 }
