@@ -292,7 +292,10 @@ namespace DataAccess.Repositories.Implement
                     UpdatedAt = DateTime.UtcNow.AddHours(7),
                 };
 
-                var lessorPercentage = booking.BookingFields.First().Field?.Stadium?.RevenueSharings?.First().LessorPercentage ?? 90;
+                var bookingField = booking.BookingFields.FirstOrDefault();
+                var revenueSharing = bookingField?.Field?.Stadium?.RevenueSharings?.FirstOrDefault();
+
+                var lessorPercentage = revenueSharing?.LessorPercentage ?? 90;
 
                 var revenueTransaction = new RevenueTransaction
                 {
