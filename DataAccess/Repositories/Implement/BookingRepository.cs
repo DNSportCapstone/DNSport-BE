@@ -292,7 +292,7 @@ namespace DataAccess.Repositories.Implement
                     UpdatedAt = DateTime.UtcNow.AddHours(7),
                 };
 
-                var lessorPercentage = booking.BookingFields.First().Field?.Stadium?.RevenueSharings.First().LessorPercentage ?? 90;
+                var lessorPercentage = booking.BookingFields.First().Field?.Stadium?.RevenueSharings?.First().LessorPercentage ?? 90;
 
                 var revenueTransaction = new RevenueTransaction
                 {
@@ -304,8 +304,17 @@ namespace DataAccess.Repositories.Implement
                     Status = "Success",
                 };
 
+                var payment = new Payment
+                {
+                    BookingId = booking.BookingId,
+                    Deposit = booking.TotalPrice,
+                    PaymentTime = DateTime.UtcNow.AddHours(7),
+                    Status = "Success"
+                };
+
                 _dbContext.TransactionLogs.Add(transactionLog);
                 _dbContext.RevenueTransactions.Add(revenueTransaction);
+                _dbContext.Payments.Add(payment);
                 _dbContext.SaveChanges();
             }
             catch (Exception e)
