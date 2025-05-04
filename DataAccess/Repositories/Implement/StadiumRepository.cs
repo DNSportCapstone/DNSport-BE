@@ -1,6 +1,7 @@
 using BusinessObject.Models;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using DataAccess.Common;
 using DataAccess.DAO;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
@@ -38,6 +39,25 @@ namespace DataAccess.Repositories.Implement
                                     Owner = u.Email
                                 }).AsNoTracking().ToListAsync();
             return result;
+        }
+
+        public async Task<List<StadiumModel>> GetStadiumByName(string stadiumName)
+        {
+            var normalizedKeyword = Helper.RemoveDiacritics(stadiumName).ToLower();
+
+            var result = await (from s in _dbcontext.Stadiums
+                                join u in _dbcontext.Users on s.UserId equals u.UserId
+                                select new StadiumModel
+                                {
+                                    StadiumId = s.StadiumId,
+                                    UserId = s.UserId,
+                                    StadiumName = s.StadiumName,
+                                    Address = s.Address,
+                                    Image = s.Image,
+                                    Status = s.Status,
+                                    Owner = u.Email
+                                }).AsNoTracking().ToListAsync();
+            return result.Where(s => Helper.RemoveDiacritics(s.StadiumName).ToLower().Contains(normalizedKeyword)).ToList();
         }
 
         public async Task<Stadium> AddStadium(StadiumRequestModel model)
