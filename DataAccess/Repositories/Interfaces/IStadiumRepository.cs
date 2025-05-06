@@ -7,6 +7,7 @@ namespace DataAccess.Repositories.Interfaces
     public interface IStadiumRepository
     {
         Task<List<StadiumModel>> GetStadiumData();
+        Task<List<StadiumModel>> GetStadiumByName(string stadiumName);
         Task<Stadium> AddStadium(StadiumRequestModel model);
         Task<int> DisableStadium(int id, string status);
         Task<IEnumerable<StadiumLessorModel>> GetStadiumsByLessorIdAsync(int userId);

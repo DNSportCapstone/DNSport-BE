@@ -58,11 +58,16 @@ namespace DataAccess.Repositories.Implement
         public async Task<BookingInvoiceModel> GetBookingInvoice(int bookingId)
         {
             var booking = await (from b in _dbContext.Bookings
+                                 join bf in _dbContext.BookingFields on b.BookingId equals bf.BookingId
+                                 join f in _dbContext.Fields on bf.FieldId equals f.FieldId
+                                 join s in _dbContext.Stadiums on f.StadiumId equals s.StadiumId
                                  where b.BookingId == bookingId
                                  select new BookingInvoiceModel
                                  {
                                      BookingId = b.BookingId,
                                      Date = (DateTime)b.BookingDate,
+                                     StadiumName = s.StadiumName,
+                                     StadiumAddress = s.Address,
                                      ItemBooking = (from bf in _dbContext.BookingFields
                                                     join f in _dbContext.Fields
                                                     on bf.FieldId equals f.FieldId
@@ -288,7 +293,10 @@ namespace DataAccess.Repositories.Implement
                     UpdatedAt = DateTime.UtcNow.AddHours(7),
                 };
 
-                var lessorPercentage = booking.BookingFields.First().Field?.Stadium?.RevenueSharings.First().LessorPercentage ?? 90;
+                var bookingField = booking.BookingFields.FirstOrDefault();
+                var revenueSharing = bookingField?.Field?.Stadium?.RevenueSharings?.FirstOrDefault();
+
+                var lessorPercentage = revenueSharing?.LessorPercentage ?? 90;
 
                 var revenueTransaction = new RevenueTransaction
                 {
@@ -300,8 +308,17 @@ namespace DataAccess.Repositories.Implement
                     Status = "Success",
                 };
 
+                var payment = new Payment
+                {
+                    BookingId = booking.BookingId,
+                    Deposit = booking.TotalPrice,
+                    PaymentTime = DateTime.UtcNow.AddHours(7),
+                    Status = "Success"
+                };
+
                 _dbContext.TransactionLogs.Add(transactionLog);
                 _dbContext.RevenueTransactions.Add(revenueTransaction);
+                _dbContext.Payments.Add(payment);
                 _dbContext.SaveChanges();
             }
             catch (Exception e)

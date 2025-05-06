@@ -30,7 +30,9 @@ namespace DataAccess.Services.Implement
                 PhoneNumber = user.UserDetail?.PhoneNumber ?? "N/A",
                 Address = user.UserDetail?.Address ?? "N/A",
                 Date = DateTime.Now,
-                Items = booking.ItemBooking.Concat(booking.ItemService).ToList()
+                Items = booking.ItemBooking.Concat(booking.ItemService).ToList(),
+                StadiumName = booking.StadiumName,
+                StadiumAddress = booking.StadiumAddress
             };
 
             var pdfDocument = Document.Create(container =>
@@ -41,9 +43,12 @@ namespace DataAccess.Services.Implement
                     page.Margin(30);
                     page.DefaultTextStyle(x => x.FontSize(12).FontFamily("Arial"));
 
-                    page.Header().Row(row =>
+                    page.Header().Column(headerCol =>
                     {
-                        row.RelativeItem().AlignCenter().Text("HÓA ĐƠN").FontSize(24).Bold().FontColor(Colors.Blue.Medium); // Changed to RelativeItem
+                        headerCol.Item().AlignCenter().Text("HÓA ĐƠN").FontSize(24).Bold().FontColor(Colors.Blue.Medium);
+                        headerCol.Item().AlignCenter().Text("DNS-Sport").FontSize(20).Bold().FontColor(Colors.Blue.Medium);
+                        headerCol.Item().AlignCenter().Text($"Sân bóng: {invoice.StadiumName}").FontSize(12).Italic();
+                        headerCol.Item().AlignCenter().Text($"Địa chỉ: {invoice.StadiumAddress}").FontSize(12).Italic();
                     });
 
                     page.Content().Column(col =>
