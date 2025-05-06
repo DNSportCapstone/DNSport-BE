@@ -27,6 +27,8 @@ namespace DataAccess.Repositories.Implement
         {
             var result = await (from s in _dbcontext.Stadiums
                                 join u in _dbcontext.Users on s.UserId equals u.UserId
+                                join ud in _dbcontext.UserDetails on u.UserId equals ud.UserId
+                                where s.Status != "Rejected"
                                 select new StadiumModel
                                 {
                                     StadiumId = s.StadiumId,
@@ -35,7 +37,7 @@ namespace DataAccess.Repositories.Implement
                                     Address = s.Address,
                                     Image = s.Image,
                                     Status = s.Status,
-                                    Owner = u.Email
+                                    Owner = ud.FullName == string.Empty ? u.Email : $"{ud.FullName} - {u.Email}",
                                 }).AsNoTracking().ToListAsync();
             return result;
         }
