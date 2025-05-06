@@ -249,11 +249,12 @@ namespace DataAccess.Repositories.Implement
                                     BookingId = t.BookingId,
                                     TimeSlot = t.TimeSlot,
                                     TransactionType = t.TransactionType,
-                                    ErrorMessage = t.ErrorMessage,
+                                    ErrorMessage = t.ErrorMessage == string.Empty ? "Thanh toán thành công" : t.ErrorMessage,
                                     CreatedAt = t.CreatedAt,
                                     UpdatedAt = t.UpdatedAt,
                                     Amount = b.TotalPrice.ToString()
                                 }).AsNoTracking().ToListAsync();
+            result = result.OrderByDescending(r => r.CreatedAt).ToList();
             return result;
         }
 
