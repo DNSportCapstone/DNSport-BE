@@ -1,6 +1,8 @@
 using AutoMapper;
 using BusinessObject.Models;
+using CloudinaryDotNet;
 using DataAccess.DTOs.Request;
+using DataAccess.DTOs.Response;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -89,5 +91,61 @@ public class VoucherRepository : IVoucherRepository
             })
             .ToListAsync();
         return result;
+    }
+    public async Task<VoucherResponse> ApplyVoucher(string voucherCode)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(voucherCode))
+            {
+                var voucher = _dbcontext.Vouchers.FirstOrDefault(vc => voucherCode.Equals(vc.VoucherCode));
+                if (voucher == null)
+                {
+                    return new VoucherResponse
+                    {
+                        IsError = true,
+                        Message = "Voucher Code is not valid!"
+                    };
+                }
+                else
+                {
+                    if (voucher.ExpiryDate <= DateTime.UtcNow.AddHours(7))
+                    {
+                        return new VoucherResponse
+                        {
+                            IsError = true,
+                            Message = "Voucher Code is expired!"
+                        };
+                    }
+                    else
+                    {
+                        return new VoucherResponse
+                        {
+                            IsError = false,
+                            Message = "Voucher Code is valid!",
+                            VoucherId = voucher.VoucherId,
+                            VoucherCode = voucher.VoucherCode,
+                            DiscountPercentage = (double)(voucher.DiscountPercentage ?? 0),
+                            ExpiryDate = voucher.ExpiryDate ?? DateTime.UtcNow,
+                            Conditions = string.Empty
+                        };
+                    }
+                }
+            }
+
+            return new VoucherResponse
+            {
+                IsError = false,
+                Message = "Voucher Code is not valid!"
+            };
+        }
+        catch
+        {
+            return new VoucherResponse
+            {
+                IsError = true,
+                Message = "Apply Voucher Error!"
+            };
+        }
     }
 }

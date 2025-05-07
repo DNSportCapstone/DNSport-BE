@@ -14,5 +14,6 @@ namespace Services.Interfaces
         Task<bool> IsVoucherCodeUniqueAsync(string voucherCode);
         Task<int> CreateOrUpdateVoucher(CreateOrUpdateVoucherRequest request);
         Task<List<CreateOrUpdateVoucherRequest>> GetAllVouchers();
+        Task<VoucherResponse> ApplyVoucher(string voucherCode);
     }
 }

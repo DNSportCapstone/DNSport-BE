@@ -72,4 +72,8 @@ public class VoucherService : IVoucherService
     {
         return await _voucherRepository.GetAllVouchers();
     }
+    public async Task<VoucherResponse> ApplyVoucher(string voucherCode)
+    {
+        return await _voucherRepository.ApplyVoucher(voucherCode);
+    }
 }

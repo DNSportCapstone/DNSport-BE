@@ -45,7 +45,8 @@ namespace DataAccess.Services.Implement
                 {
                     UserId = request.Fields.FirstOrDefault()?.UserId,
                     BookingDate = DateTime.UtcNow.AddHours(7),
-                    Status = Constants.BookingStatus.PendingPayment
+                    Status = Constants.BookingStatus.PendingPayment,
+                    VoucherId = request.VoucherId != 0 ? request.VoucherId : null
                 };
 
                 decimal? totalPrice = 0;
