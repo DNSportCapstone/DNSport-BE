@@ -62,5 +62,22 @@ namespace API.Controllers
             return Ok(comments);
         }
 
+        [HttpGet("can-rate/{bookingId}/{userId}")]
+        public async Task<IActionResult> CanRate(int bookingId, int userId)
+        {
+            try
+            {
+                var result = await _ratingRepository.CanRateAsync(bookingId, userId);
+                return Ok(new
+                {
+                    Success = true,
+                    Result = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+        }
     }
 }

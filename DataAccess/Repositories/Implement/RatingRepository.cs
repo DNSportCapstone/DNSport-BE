@@ -105,6 +105,39 @@ namespace DataAccess.Repositories.Implement
             return comments;
         }
 
+        public async Task<object> CanRateAsync(int bookingId, int userId)
+        {
+            // Kiểm tra booking
+            var booking = await _context.Bookings
+                .FirstOrDefaultAsync(b => b.BookingId == bookingId &&
+                                         b.UserId == userId &&
+                                         b.Status == "Success");
+
+            if (booking == null)
+            {
+                return new { CanRate = false, Message = "Only successful bookings can be rated." };
+            }
+
+            // Kiểm tra EndTime
+            var bookingField = await _context.BookingFields
+                .FirstOrDefaultAsync(bf => bf.BookingId == bookingId);
+
+            if (bookingField == null || DateTime.Now < bookingField.EndTime)
+            {
+                return new { CanRate = false, Message = "You can only rate after the booked time has passed." };
+            }
+
+            // Kiểm tra đã rating chưa
+            var existingRating = await _context.Ratings
+                .AnyAsync(r => r.BookingId == bookingId && r.UserId == userId);
+
+            if (existingRating)
+            {
+                return new { CanRate = false, Message = "You can only rate once per booking." };
+            }
+
+            return new { CanRate = true, Message = "Eligible to rate." };
+        }
 
     }
 }

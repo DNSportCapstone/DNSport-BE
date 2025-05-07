@@ -9,5 +9,6 @@ namespace DataAccess.Repositories.Interfaces
         Task<bool> AddReplyAsync(RatingReplyModel replyModel);
         Task<List<Rating>> GetCommentsByFieldIdAsync(int stadiumId);
         Task<Rating> GetRatingByBookingAsync(int bookingId, int userId);
+        Task<object> CanRateAsync(int bookingId, int userId);
     }
 }
