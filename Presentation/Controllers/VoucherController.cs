@@ -74,9 +74,9 @@ public class VoucherController : ControllerBase
     }
 
     [HttpPost("apply")]
-    public async Task<IActionResult> ApplyVoucher([FromBody] string? voucherCode)
+    public async Task<IActionResult> ApplyVoucher([FromBody] VoucherRequest voucherRequest)
     {
-        var voucherResponse = await _voucherService.ApplyVoucher(voucherCode);
+        var voucherResponse = await _voucherService.ApplyVoucher(voucherRequest);
         return Ok(voucherResponse);
     }
 }

@@ -15,6 +15,6 @@ namespace DataAccess.Repositories.Interfaces
         Task<bool> IsVoucherCodeUniqueAsync(string voucherCode);
         Task<int> CreateOrUpdateVoucher(CreateOrUpdateVoucherRequest request);
         Task<List<CreateOrUpdateVoucherRequest>> GetAllVouchers();
-        Task<VoucherResponse> ApplyVoucher(string voucherCode);
+        Task<VoucherResponse> ApplyVoucher(VoucherRequest voucherRequest);
     }
 }

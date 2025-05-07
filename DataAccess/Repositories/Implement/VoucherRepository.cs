@@ -6,6 +6,7 @@ using DataAccess.DTOs.Response;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -92,29 +93,38 @@ public class VoucherRepository : IVoucherRepository
             .ToListAsync();
         return result;
     }
-    public async Task<VoucherResponse> ApplyVoucher(string voucherCode)
+    public async Task<VoucherResponse> ApplyVoucher(VoucherRequest voucherRequest)
     {
         try
         {
-            if (!string.IsNullOrEmpty(voucherCode))
+            if (!string.IsNullOrEmpty(voucherRequest.VoucherCode))
             {
-                var voucher = _dbcontext.Vouchers.FirstOrDefault(vc => voucherCode.Equals(vc.VoucherCode));
+                var voucher = await _dbcontext.Vouchers.FirstOrDefaultAsync(vc => voucherRequest.VoucherCode.Equals(vc.VoucherCode));
                 if (voucher == null)
                 {
                     return new VoucherResponse
                     {
                         IsError = true,
-                        Message = "Voucher Code is not valid!"
+                        Message = "InvalidVoucherCode"
                     };
                 }
                 else
                 {
-                    if (voucher.ExpiryDate <= DateTime.UtcNow.AddHours(7))
+                    var isUsed = voucher.UserVouchers.FirstOrDefault(uv => uv.UserId == voucherRequest.UserId)?.IsUsed ?? false;
+                    if (isUsed)
                     {
                         return new VoucherResponse
                         {
                             IsError = true,
-                            Message = "Voucher Code is expired!"
+                            Message = "IsUsedVoucherCode"
+                        };
+                    }
+                    else if (voucher.ExpiryDate <= DateTime.UtcNow.AddHours(7))
+                    {
+                        return new VoucherResponse
+                        {
+                            IsError = true,
+                            Message = "ExpiredVoucherCode"
                         };
                     }
                     else
@@ -122,7 +132,7 @@ public class VoucherRepository : IVoucherRepository
                         return new VoucherResponse
                         {
                             IsError = false,
-                            Message = "Voucher Code is valid!",
+                            Message = "InvalidVoucherCode",
                             VoucherId = voucher.VoucherId,
                             VoucherCode = voucher.VoucherCode,
                             DiscountPercentage = (double)(voucher.DiscountPercentage ?? 0),
@@ -136,7 +146,7 @@ public class VoucherRepository : IVoucherRepository
             return new VoucherResponse
             {
                 IsError = false,
-                Message = "Voucher Code is not valid!"
+                Message = "InvalidVoucherCode"
             };
         }
         catch
