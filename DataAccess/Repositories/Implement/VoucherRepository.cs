@@ -66,7 +66,6 @@ public class VoucherRepository : IVoucherRepository
     {
         var voucher = await _dbcontext.Vouchers.FirstOrDefaultAsync(v => v.VoucherId == model.VoucherId) ?? new Voucher();
         voucher.VoucherCode = model.VoucherCode;
-        voucher.DiscountPercentage = model.DiscountPercentage;
         voucher.ExpiryDate = model.ExpirationDate;
 
         if (voucher.VoucherId == 0)
@@ -84,7 +83,6 @@ public class VoucherRepository : IVoucherRepository
             {
                 VoucherId = v.VoucherId,
                 VoucherCode = v.VoucherCode,
-                DiscountPercentage = (int)v.DiscountPercentage,
                 ExpirationDate = (DateTime)v.ExpiryDate
             })
             .ToListAsync();
