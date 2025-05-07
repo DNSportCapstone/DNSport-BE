@@ -38,6 +38,14 @@ namespace DataAccess.Services.Implement
         {
             return await _stadiumRepository.UpdateStadiumStatus(request.StadiumId, request.NewStatus);
         }
+        public async Task<List<StadiumModel>> GetStadiumByName(string stadiumName)
+        {
+            if (string.IsNullOrEmpty(stadiumName))
+            {
+                return await _stadiumRepository.GetStadiumData();
+            }
+            return await _stadiumRepository.GetStadiumByName(stadiumName);
+        }
     }
 
 }

@@ -17,6 +17,7 @@ namespace DataAccess.Common
         public struct BookingStatus
         {
             public const string PendingPayment = "PendingPayment";
+            public const string Success = "Success";
             public const string Paid = "Paid";
             public const string Cancelled = "Cancelled";
             public const string Refunded = "Refunded";

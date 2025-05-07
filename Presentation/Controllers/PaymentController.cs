@@ -77,7 +77,7 @@ namespace Presentation.Controllers
                     var paymentResult = _vnpay.GetPaymentResult(Request.Query);
                     if (paymentResult.IsSuccess && int.TryParse(paymentResult.Description, out int bookingId))
                     {
-                        if (_bookingService.UpdateBookingStatus(bookingId, Constants.BookingStatus.Paid))
+                        if (_bookingService.UpdateBookingStatus(bookingId, Constants.BookingStatus.Success))
                         {
                             _bookingService.AddTransactionLogAndRevenueTransaction(bookingId);
                             return Ok();
@@ -188,20 +188,42 @@ namespace Presentation.Controllers
         {
             try
             {
+                if (webhookBody == null)
+                {
+                    return Ok(new { Message = "Webhook body is null" });
+                }
+
+                if (!webhookBody.success)
+                {
+                    return Ok(new { Message = $"Failed" });
+                }
+
                 var webhookData = _payOS.verifyPaymentWebhookData(webhookBody);
 
-                if (_bookingService.UpdateBookingStatus((int)webhookData.orderCode, Constants.BookingStatus.Paid))
+                if (_bookingService.UpdateBookingStatus((int)webhookData.orderCode, Constants.BookingStatus.Success))
                 {
                     _bookingService.AddTransactionLogAndRevenueTransaction((int)webhookData.orderCode);
-                    return Ok();
                 }
 
                 return Ok();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in Webhook: {ex.Message}");
-                return BadRequest(ex);
+                return Ok(new { Message = $"Webhook processing failed: {ex.Message}" });
+            }
+        }
+        [HttpPost("test")]
+        public async Task<IActionResult> Test([FromBody] int bookingId)
+        {
+            try
+            {
+                
+                _bookingService.AddTransactionLogAndRevenueTransaction(bookingId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Message = $"Webhook processing failed: {ex.Message}" });
             }
         }
     }

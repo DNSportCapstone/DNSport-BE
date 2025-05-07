@@ -52,7 +52,10 @@ namespace DataAccess.Services.Implement
                 DayPrice = field.DayPrice ?? 0,
                 NightPrice = field.NightPrice ?? 0,
                 Status = field.Status,
-                ImageUrls = field.Images?.Select(i => i.Url).ToList() ?? new List<string>()
+                ImageUrls = field.Images?.Select(i => i.Url).ToList() ?? new List<string>(),
+                FieldName = field.FieldName,
+                StadiumName = field.Stadium.StadiumName,
+                Address = field.Stadium.Address
             };
         }
 
