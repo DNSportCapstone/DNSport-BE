@@ -316,6 +316,24 @@ namespace DataAccess.Repositories.Implement
                     Status = "Success"
                 };
 
+                var userVoucher = _dbContext.UserVouchers.FirstOrDefault(uv => uv.UserId == booking.UserId && uv.VoucherId == booking.VoucherId);
+
+                if (userVoucher == null)
+                {
+                    userVoucher = new UserVoucher
+                    {
+                        UserId = booking.UserId,
+                        VoucherId = booking.VoucherId,
+                        IsUsed = true
+                    };
+                    _dbContext.UserVouchers.Add(userVoucher);
+                }
+                else
+                {
+                    userVoucher.IsUsed = true;
+                    _dbContext.UserVouchers.Update(userVoucher);
+                }
+
                 _dbContext.TransactionLogs.Add(transactionLog);
                 _dbContext.RevenueTransactions.Add(revenueTransaction);
                 _dbContext.Payments.Add(payment);

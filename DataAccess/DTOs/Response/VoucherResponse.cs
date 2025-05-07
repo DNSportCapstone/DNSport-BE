@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTOs.Response
 {
-    public class VoucherResponse
+    public class VoucherResponse : Response
     {
         public int VoucherId { get; set; }
         public string VoucherCode { get; set; }
