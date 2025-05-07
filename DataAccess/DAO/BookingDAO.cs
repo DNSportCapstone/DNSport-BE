@@ -20,24 +20,19 @@ namespace DataAccess.DAO
         {
             using var context = new Db12353Context();
             var result = await (from b in context.Bookings
-                                join bf in context.BookingFields on b.BookingId equals bf.BookingId into bfGroup
-                                from bf in bfGroup.DefaultIfEmpty()
-                                join f in context.Fields on bf.BookingFieldId equals f.FieldId into fGroup
-                                from f in fGroup.DefaultIfEmpty() 
-                                join s in context.Sports on f.SportId equals s.SportId into sGroup
-                                from s in sGroup.DefaultIfEmpty()
-                                join u in context.Users on b.UserId equals u.UserId into uGroup
-                                from u in uGroup.DefaultIfEmpty()
+                                join bf in context.BookingFields on b.BookingId equals bf.BookingId
+                                join f in context.Fields on bf.FieldId equals f.FieldId
+                                join s in context.Sports on f.SportId equals s.SportId
+                                join u in context.Users on b.UserId equals u.UserId
                                 where b.Status == "Success"
                                 select new BookingReportModel
                                 {
-                                    UserId = u != null ? u.UserId : 0,
-                                    UserName = u != null ? u.Email : string.Empty,
+                                    UserId = u.UserId,
+                                    UserName = u.Email,
                                     BookingTime = b.BookingDate,
-                                    Type = s != null ? s.SportName : string.Empty,
-                                    SportId = s != null ? s.SportId : 0
+                                    Type = s.SportName,
+                                    SportId = s.SportId
                                 }).AsNoTracking().ToListAsync();
-
             return result;
         }
     }
