@@ -19,6 +19,7 @@ namespace DataAccess.Repositories.Interfaces
         Task<Field> GetFieldsByBookingId(int bookingId);
         Task<List<FieldReportModel>> GetFieldReportList();
         Task<FieldModel> GetFieldById(int fieldId);
-
+        Task<List<FieldModel>> GetActiveFields();
+        Task<List<FieldModel>> GetActiveFieldsByStadiumId(int stadiumId);
     }
 }

@@ -85,5 +85,12 @@ namespace Presentation.Controllers
 
             return Ok(stadiums);
         }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveStadiums()
+        {
+            var stadiums = await _stadiumRepository.GetActiveStadiums();
+            return Ok(stadiums);
+        }
     }
 }
