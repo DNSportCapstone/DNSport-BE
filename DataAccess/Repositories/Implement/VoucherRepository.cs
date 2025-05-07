@@ -135,7 +135,6 @@ public class VoucherRepository : IVoucherRepository
                             VoucherCode = voucher.VoucherCode,
                             DiscountPercentage = (double)(voucher.DiscountPercentage ?? 0),
                             ExpiryDate = voucher.ExpiryDate ?? DateTime.UtcNow,
-                            Conditions = string.Empty
                         };
                     }
                 }
