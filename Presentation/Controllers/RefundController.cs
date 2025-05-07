@@ -2,6 +2,7 @@
 using DataAccess.DTOs.Response;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
+using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -12,10 +13,12 @@ namespace Presentation.Controllers
     public class RefundController : ControllerBase
     {
         private readonly IRefundRepository _refundRepository;
+        private readonly IEmailSender _emailSender;
 
-        public RefundController(IRefundRepository refundRepository)
+        public RefundController(IRefundRepository refundRepository, IEmailSender emailSender)
         {
             _refundRepository = refundRepository;
+            _emailSender = emailSender;
         }
 
         // GET: api/Refund
@@ -128,7 +131,6 @@ namespace Presentation.Controllers
                     Message = $"Không tìm thấy refund với ID {refundId}"
                 });
             }
-
             if (refund.Status != "Processing")
             {
                 return Ok(new RefundResponseModel
@@ -137,24 +139,54 @@ namespace Presentation.Controllers
                     Message = "Chỉ có thể hoàn tất refund đang ở trạng thái Processing"
                 });
             }
-
             await _refundRepository.UpdateRefundStatusAsync(refundId, "Completed");
             var result = await _refundRepository.SaveChangesAsync();
 
-            if (result)
+            if (!result)
             {
-                return Ok(new RefundResponseModel
+                return StatusCode(500, new RefundResponseModel
                 {
-                    Message = $"Refund với ID {refundId} đã được hoàn tất",
-                    Error = null
+                    Error = "INTERNAL_ERROR",
+                    Message = "Đã xảy ra lỗi khi cập nhật trạng thái refund"
                 });
             }
 
-            return StatusCode(500, new RefundResponseModel
+            // Kiểm tra email trước khi gửi
+            if (string.IsNullOrEmpty(refund.UserEmail))
             {
-                Error = "INTERNAL_ERROR",
-                Message = "Đã xảy ra lỗi khi cập nhật trạng thái refund"
-            });
+                return Ok(new RefundResponseModel
+                {
+                    Error = "WARNING",
+                    Message = "Refund completed but could not send email notification (email not found)."
+                });
+            }
+
+            try
+            {
+                var subject = "Thông báo hoàn tiền";
+                var htmlMessage = $@"
+                    <h2>Xin chào {refund.UserName ?? "Quý khách"},</h2>
+                    <p>Chúng tôi từ DNSPort xin thông báo rằng khoản tiền {refund.RefundAmount:N0} VND đã được hoàn lại vào tài khoản ngân hàng {refund.BankAccountNumber} của bạn.</p>
+                    <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+                ";
+
+                await _emailSender.SendEmailAsync(refund.UserEmail, subject, htmlMessage);
+
+                return Ok(new RefundResponseModel
+                {
+                    Error = "SUCCESS",
+                    Message = "Refund completed and notification sent."
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi gửi mail nhưng vẫn trả về thành công vì refund đã được hoàn tất
+                return Ok(new RefundResponseModel
+                {
+                    Error = "WARNING",
+                    Message = "Refund completed but failed to send email notification."
+                });
+            }
         }
 
         [HttpGet("all-refund")]
