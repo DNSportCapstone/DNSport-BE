@@ -26,7 +26,9 @@ namespace DataAccess.Services.Implement
             {
                 FieldId = f.FieldId,
                 StadiumId = f.StadiumId ?? 0,
+                FieldName = f.FieldName,
                 SportId = f.SportId ?? 0,
+                MaximumPeople = f.MaximumPeople ?? 0,
                 Description = f.Description,
                 DayPrice = f.DayPrice ?? 0,
                 NightPrice = f.NightPrice ?? 0,
@@ -50,7 +52,10 @@ namespace DataAccess.Services.Implement
                 DayPrice = field.DayPrice ?? 0,
                 NightPrice = field.NightPrice ?? 0,
                 Status = field.Status,
-                ImageUrls = field.Images?.Select(i => i.Url).ToList() ?? new List<string>()
+                ImageUrls = field.Images?.Select(i => i.Url).ToList() ?? new List<string>(),
+                FieldName = field.FieldName,
+                StadiumName = field.Stadium.StadiumName,
+                Address = field.Stadium.Address
             };
         }
 

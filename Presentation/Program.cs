@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Net.payOS;
 using Services.Interfaces;
 using System.Text;
 using VNPAY.NET;
@@ -28,6 +29,12 @@ builder.Services.AddControllers()
     .AddOData(opt => opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(int.MaxValue));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSingleton<PayOS>(sp =>
+    new PayOS(
+        builder.Configuration["PayOS:ClientId"],
+        builder.Configuration["PayOS:APIKey"],
+        builder.Configuration["PayOS:ChecksumKey"]
+    ));
 builder.Services.AddScoped<IFieldRepository, FieldRepository>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 var MaillSettings = configuration.GetSection("MaillSettings");
@@ -88,7 +95,7 @@ builder.Services.AddScoped<IFieldService, FieldService>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 builder.Services.AddScoped<IRevenueTransactionRepository, RevenueTransactionRepository>();
 builder.Services.AddScoped<IRefundRepository, RefundRepository>();
-
+builder.Services.AddScoped<ILessorRepository, LessorRepository>();
 
 // Service
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -102,6 +109,7 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStadiumService, StadiumService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IRevenueTransactionService, RevenueTransactionService>();
+builder.Services.AddScoped<ILessorService, LessorService>();
 
 var corsSettings = builder.Configuration.GetSection("CORS");
 var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();

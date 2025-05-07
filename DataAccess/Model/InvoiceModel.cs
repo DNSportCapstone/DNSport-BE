@@ -10,7 +10,8 @@
         public DateTime Date { get; set; } = DateTime.Now;
         public decimal TotalAmount => CalculateTotalAmount();
         public List<InvoiceItem> Items { get; set; } = new();
-
+        public string? StadiumName { get; set; } = string.Empty;
+        public string? StadiumAddress { get; set; } = string.Empty;
         private decimal CalculateTotalAmount()
         {
             decimal total = 0;

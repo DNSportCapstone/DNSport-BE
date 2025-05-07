@@ -1,6 +1,7 @@
 using BusinessObject.Models;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using DataAccess.Common;
 using DataAccess.DAO;
 using DataAccess.Model;
 using DataAccess.Repositories.Interfaces;
@@ -27,6 +28,27 @@ namespace DataAccess.Repositories.Implement
         {
             var result = await (from s in _dbcontext.Stadiums
                                 join u in _dbcontext.Users on s.UserId equals u.UserId
+                                join ud in _dbcontext.UserDetails on u.UserId equals ud.UserId
+                                where s.Status != "Rejected"
+                                select new StadiumModel
+                                {
+                                    StadiumId = s.StadiumId,
+                                    UserId = s.UserId,
+                                    StadiumName = s.StadiumName,
+                                    Address = s.Address,
+                                    Image = s.Image,
+                                    Status = s.Status,
+                                    Owner = ud.FullName == string.Empty ? u.Email : $"{ud.FullName} - {u.Email}",
+                                }).AsNoTracking().ToListAsync();
+            return result;
+        }
+
+        public async Task<List<StadiumModel>> GetStadiumByName(string stadiumName)
+        {
+            var normalizedKeyword = Helper.RemoveDiacritics(stadiumName).ToLower();
+
+            var result = await (from s in _dbcontext.Stadiums
+                                join u in _dbcontext.Users on s.UserId equals u.UserId
                                 select new StadiumModel
                                 {
                                     StadiumId = s.StadiumId,
@@ -37,7 +59,7 @@ namespace DataAccess.Repositories.Implement
                                     Status = s.Status,
                                     Owner = u.Email
                                 }).AsNoTracking().ToListAsync();
-            return result;
+            return result.Where(s => Helper.RemoveDiacritics(s.StadiumName).ToLower().Contains(normalizedKeyword)).ToList();
         }
 
         public async Task<Stadium> AddStadium(StadiumRequestModel model)
@@ -59,6 +81,35 @@ namespace DataAccess.Repositories.Implement
         {
             return await _stadiumDAO.DisableStadium(id, status);
         }
+
+        public async Task<IEnumerable<StadiumLessorModel>> GetStadiumsByLessorIdAsync(int userId)
+        {
+            var user = await _dbcontext.Set<User>()
+                .Include(u => u.UserDetail)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+                throw new Exception("User not found.");
+
+            if (user.RoleId != 2)
+                throw new Exception("User is not a lessor.");
+
+            var stadiums = await _dbcontext.Set<Stadium>()
+                .Where(s => s.UserId == userId)
+                .Select(s => new StadiumLessorModel
+                {
+                    StadiumId = s.StadiumId,
+                    StadiumName = s.StadiumName,
+                    Address = s.Address,
+                    Status = s.Status,
+                    LessorName = user.UserDetail.FullName,
+                    Email = user.Email
+                })
+                .ToListAsync();
+
+            return stadiums;
+        }
+
         public async Task<List<StadiumModel>> GetStadiumsByUserId(int userId)
         {
             var result = await (from s in _dbcontext.Stadiums
@@ -76,6 +127,38 @@ namespace DataAccess.Repositories.Implement
                                 }).AsNoTracking().ToListAsync();
 
             return result;
+        }
+        // StadiumRepository.cs
+        public async Task<List<StadiumModel>> GetPendingStadiums()
+        {
+            var pendingStadiums = await _dbcontext.Stadiums
+                .Where(s => s.Status == "Pending")
+                .Select(s => new StadiumModel
+                {
+                    StadiumId = s.StadiumId,
+                    UserId = s.UserId,
+                    StadiumName = s.StadiumName,
+                    Address = s.Address,
+                    Image = s.Image,
+                    Status = s.Status
+                })
+                .AsNoTracking()
+                .ToListAsync();
+            return pendingStadiums;
+        }
+
+        public async Task<bool> UpdateStadiumStatus(int stadiumId, string newStatus)
+        {
+            var stadium = await _dbcontext.Stadiums.FirstOrDefaultAsync(s => s.StadiumId == stadiumId && s.Status == "Pending");
+
+            if (stadium == null)
+            {
+                return false;
+            }
+
+            stadium.Status = newStatus;
+            await _dbcontext.SaveChangesAsync();
+            return true;
         }
 
     }

@@ -27,7 +27,7 @@ namespace DataAccess.Repositories.Implement
                                 join s in _dbContext.Stadiums on f.StadiumId equals s.StadiumId
                                 join d in _dbContext.Denounces on b.BookingId equals d.BookingId into denounceJoin
                                 from d in denounceJoin.DefaultIfEmpty()
-                                where b.Status == "Success" && b.UserId == userId
+                                where b.Status == Constants.BookingStatus.Success && b.UserId == userId
                                 select new BookingHistoryModel
                                 {
                                     BookingId = b.BookingId,
@@ -58,11 +58,16 @@ namespace DataAccess.Repositories.Implement
         public async Task<BookingInvoiceModel> GetBookingInvoice(int bookingId)
         {
             var booking = await (from b in _dbContext.Bookings
+                                 join bf in _dbContext.BookingFields on b.BookingId equals bf.BookingId
+                                 join f in _dbContext.Fields on bf.FieldId equals f.FieldId
+                                 join s in _dbContext.Stadiums on f.StadiumId equals s.StadiumId
                                  where b.BookingId == bookingId
                                  select new BookingInvoiceModel
                                  {
                                      BookingId = b.BookingId,
                                      Date = (DateTime)b.BookingDate,
+                                     StadiumName = s.StadiumName,
+                                     StadiumAddress = s.Address,
                                      ItemBooking = (from bf in _dbContext.BookingFields
                                                     join f in _dbContext.Fields
                                                     on bf.FieldId equals f.FieldId
@@ -169,7 +174,7 @@ namespace DataAccess.Repositories.Implement
                     ReceiveId = lessor.UserId,
                     BookingId = bookingReport.BookingId,
                     Description = bookingReport.Description,
-                    DenounceTime = DateTime.UtcNow,
+                    DenounceTime = DateTime.UtcNow.AddHours(7),
                     Status = "Pending"
                 };
 
@@ -244,11 +249,12 @@ namespace DataAccess.Repositories.Implement
                                     BookingId = t.BookingId,
                                     TimeSlot = t.TimeSlot,
                                     TransactionType = t.TransactionType,
-                                    ErrorMessage = t.ErrorMessage,
+                                    ErrorMessage = t.ErrorMessage == string.Empty ? "Thanh toán thành công" : t.ErrorMessage,
                                     CreatedAt = t.CreatedAt,
                                     UpdatedAt = t.UpdatedAt,
                                     Amount = b.TotalPrice.ToString()
                                 }).AsNoTracking().ToListAsync();
+            result = result.OrderByDescending(r => r.CreatedAt).ToList();
             return result;
         }
 
@@ -280,25 +286,57 @@ namespace DataAccess.Repositories.Implement
                 {
                     BookingId = booking.BookingId,
                     UserId = booking.UserId,
-                    TimeSlot = DateTime.UtcNow,
+                    TimeSlot = DateTime.UtcNow.AddHours(7),
                     TransactionType = "Banking",
                     ErrorMessage = string.Empty,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    UpdatedAt = DateTime.UtcNow.AddHours(7),
                 };
+
+                var bookingField = booking.BookingFields.FirstOrDefault();
+                var revenueSharing = bookingField?.Field?.Stadium?.RevenueSharings?.FirstOrDefault();
+
+                var lessorPercentage = revenueSharing?.LessorPercentage ?? 90;
 
                 var revenueTransaction = new RevenueTransaction
                 {
                     BookingId = booking.BookingId,
                     TotalRevenue = booking.TotalPrice,
-                    AdminAmount = 90,
-                    OwnerAmount = 10,
-                    RevenueTransactionDate = DateTime.UtcNow,
-                    Status = "Pending",
+                    AdminAmount = booking.TotalPrice * (100-lessorPercentage)/100,
+                    OwnerAmount = booking.TotalPrice * lessorPercentage/100,
+                    RevenueTransactionDate = DateTime.UtcNow.AddHours(7),
+                    Status = "Success",
                 };
+
+                var payment = new Payment
+                {
+                    BookingId = booking.BookingId,
+                    Deposit = booking.TotalPrice,
+                    PaymentTime = DateTime.UtcNow.AddHours(7),
+                    Status = "Success"
+                };
+
+                var userVoucher = _dbContext.UserVouchers.FirstOrDefault(uv => uv.UserId == booking.UserId && uv.VoucherId == booking.VoucherId);
+
+                if (userVoucher == null)
+                {
+                    userVoucher = new UserVoucher
+                    {
+                        UserId = booking.UserId,
+                        VoucherId = booking.VoucherId,
+                        IsUsed = true
+                    };
+                    _dbContext.UserVouchers.Add(userVoucher);
+                }
+                else
+                {
+                    userVoucher.IsUsed = true;
+                    _dbContext.UserVouchers.Update(userVoucher);
+                }
 
                 _dbContext.TransactionLogs.Add(transactionLog);
                 _dbContext.RevenueTransactions.Add(revenueTransaction);
+                _dbContext.Payments.Add(payment);
                 _dbContext.SaveChanges();
             }
             catch (Exception e)
@@ -315,7 +353,7 @@ namespace DataAccess.Repositories.Implement
                 var booking = new Booking
                 {
                     UserId = request.UserId,
-                    BookingDate = DateTime.UtcNow,
+                    BookingDate = DateTime.UtcNow.AddHours(7),
                     Status = Constants.BookingStatus.PendingPayment
                 };
 

@@ -9,6 +9,7 @@ namespace DataAccess.DTOs.Request
     public class MultipleBookingsRequest
     {
         public List<FieldBooking> Fields { get; set; }
+        public int? VoucherId { get; set; }
     }
 
     public class FieldBooking

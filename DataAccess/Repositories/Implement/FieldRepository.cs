@@ -47,7 +47,7 @@ namespace DataAccess.Repositories.Implement
         }
         public async Task<Field?> GetFieldByIdAsync(int fieldId)
         {
-            return await _dbcontext.Fields.Include(f => f.Stadium).FirstOrDefaultAsync(f => f.FieldId == fieldId);
+            return await _dbcontext.Fields.Include(f => f.Stadium).Include(f => f.Images).FirstOrDefaultAsync(f => f.FieldId == fieldId);
         }
         //Update New Field 
         public async Task UpdateFieldAsync(Field field)
@@ -61,8 +61,8 @@ namespace DataAccess.Repositories.Implement
             {
                 FieldId = fieldId,
                 Url = url,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow.AddHours(7),
+                UpdatedAt = DateTime.UtcNow.AddHours(7)
             }).ToList();
 
             await _dbcontext.Images.AddRangeAsync(images);
@@ -81,21 +81,34 @@ namespace DataAccess.Repositories.Implement
             try
             {
                 var fields = await _dbcontext.Fields
-                            .Where(f => f.StadiumId == stadiumId)
-                            .Select(f => new FieldModel
-                            {
-                                FieldId = f.FieldId,
-                                Description = f.Description ?? string.Empty,
-                                BookingFields = f.BookingFields.Select(bf => new BookingFieldModel
-                                {
-                                    BookingFieldId = bf.BookingFieldId,
-                                    StartTime = bf.StartTime,
-                                    EndTime = bf.EndTime,
-                                    Price = bf.Price,
-                                    Date = bf.Date
-                                }).ToList()
-                            })
-                            .ToListAsync();
+                    .Where(f => f.StadiumId == stadiumId)
+                    .Select(f => new FieldModel
+                    {
+                        FieldId = f.FieldId,
+                        StadiumName = f.Stadium.StadiumName,
+                        FieldName = f.FieldName,
+                        Description = f.Description ?? string.Empty,
+                        DayPrice = f.DayPrice ?? 0,
+                        NightPrice = f.NightPrice ?? 0,
+                        MaximumPeople = f.MaximumPeople ?? 0,
+                        Status = f.Status,
+
+                        Thumbnail = f.Images
+                                     .OrderBy(img => img.ImageId)
+                                     .Select(img => img.Url)
+                                     .FirstOrDefault(),
+
+                        BookingFields = f.BookingFields.Select(bf => new BookingFieldModel
+                        {
+                            BookingFieldId = bf.BookingFieldId,
+                            StartTime = bf.StartTime,
+                            EndTime = bf.EndTime,
+                            Price = bf.Price,
+                            Date = bf.Date
+                        }).ToList()
+                    })
+                    .ToListAsync();
+
                 return fields;
             }
             catch
@@ -103,6 +116,7 @@ namespace DataAccess.Repositories.Implement
                 return new List<FieldModel>();
             }
         }
+
 
         public async Task<int> SetFieldStatus(FieldStatusRequest request)
         {

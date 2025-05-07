@@ -15,6 +15,10 @@ namespace DataAccess.DTOs.Response
         public decimal DayPrice { get; set; }
         public decimal NightPrice { get; set; }
         public string Status { get; set; }
+        public string? FieldName { get; set; }
+        public int? MaximumPeople { get; set; }
         public List<string> ImageUrls { get; set; }
+        public string? StadiumName { get; set; }
+        public string? Address { get; set; }
     }
 }

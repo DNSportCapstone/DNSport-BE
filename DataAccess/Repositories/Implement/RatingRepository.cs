@@ -92,15 +92,28 @@ namespace DataAccess.Repositories.Implement
 
 
 
-        //Lấy danh sách comment của một sân
-        public async Task<List<Rating>> GetCommentsByFieldIdAsync(int fieldId)
+        public async Task<List<RatingModel>> GetCommentsByFieldIdAsync(int fieldId)
         {
             var comments = await (from r in _context.Ratings
                                   join b in _context.Bookings on r.BookingId equals b.BookingId
                                   join bf in _context.BookingFields on b.BookingId equals bf.BookingId
+                                  join u in _context.Users on r.UserId equals u.UserId
+                                  join ud in _context.UserDetails on u.UserId equals ud.UserId
                                   where bf.FieldId == fieldId
+                                        && !string.IsNullOrEmpty(r.Comment)
                                   orderby r.Time descending
-                                  select r).ToListAsync();
+                                  select new RatingModel
+                                  {
+                                      RatingId = r.RatingId,
+                                      BookingId = b.BookingId,
+                                      UserId = u.UserId,
+                                      FullName = ud.FullName,
+                                      RatingValue = r.RatingValue,
+                                      Comment = r.Comment,
+                                      Time = r.Time,
+                                      Reply = r.Reply,
+                                      ReplyTime = r.ReplyTime
+                                  }).ToListAsync();
 
             return comments;
         }
@@ -138,6 +151,7 @@ namespace DataAccess.Repositories.Implement
 
             return new { CanRate = true, Message = "Eligible to rate." };
         }
+
 
     }
 }
