@@ -1,4 +1,5 @@
-﻿using BusinessObject.Models;
+﻿using AutoMapper;
+using BusinessObject.Models;
 using DataAccess.Common;
 using DataAccess.DAO;
 using DataAccess.DTOs.Request;
@@ -12,10 +13,12 @@ namespace DataAccess.Repositories.Implement
     {
         private readonly BookingDAO _bookingDAO;
         private readonly Db12353Context _dbContext;
-        public BookingRepository(BookingDAO bookingDAO, Db12353Context dbcontext)
+        private readonly IMapper _mapper;
+        public BookingRepository(BookingDAO bookingDAO, Db12353Context dbcontext, IMapper mapper)
         {
             _bookingDAO = bookingDAO;
             _dbContext = dbcontext;
+            _mapper = mapper;
         }
         public async Task<List<BookingHistoryModel>> GetBookingHistory(int userId)
         {
@@ -104,14 +107,14 @@ namespace DataAccess.Repositories.Implement
                 // Check slots are all exist
                 foreach (var bookingField in booking.BookingFields)
                 {
-                    var isExist = await _dbContext.BookingFields
-                        .AnyAsync(bf =>
-                            bf.FieldId == bookingField.FieldId &&
-                            bf.Date == bookingField.Date &&
-                            ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
-                             (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
-                             (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
-                        );
+                    var isExist = await _dbContext.BookingFields.Where(bf => !new[] { Constants.BookingStatus.Cancelled, Constants.BookingStatus.Refunded }.Contains(bf.Booking.Status))
+                                                                .AnyAsync(bf =>
+                                                                    bf.FieldId == bookingField.FieldId &&
+                                                                    bf.Date == bookingField.Date &&
+                                                                    ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
+                                                                     (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
+                                                                     (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
+                                                                );
 
                     if (isExist)
                     {
@@ -354,7 +357,8 @@ namespace DataAccess.Repositories.Implement
                 {
                     UserId = request.UserId,
                     BookingDate = DateTime.UtcNow.AddHours(7),
-                    Status = Constants.BookingStatus.PendingPayment
+                    Status = Constants.BookingStatus.PendingPayment,
+                    VoucherId = request.VoucherId
                 };
 
                 for (int i = 0; i < request.RepeatWeeks; i++)
@@ -368,13 +372,13 @@ namespace DataAccess.Repositories.Implement
                         var startTime = targetDate.Date.Add(TimeSpan.Parse(slot.Time));
                         var endTime = startTime.AddMinutes(slot.Duration);
 
-                        // Check trùng slot
-                        var isExist = await _dbContext.BookingFields.AnyAsync(bf =>
-                            bf.FieldId == request.FieldId &&
-                            bf.Date == targetDate.Date &&
-                            ((startTime >= bf.StartTime && startTime < bf.EndTime) ||
-                             (endTime > bf.StartTime && endTime <= bf.EndTime) ||
-                             (startTime <= bf.StartTime && endTime >= bf.EndTime)));
+                        var isExist = await _dbContext.BookingFields.Where(bf => !new[] { Constants.BookingStatus.Cancelled, Constants.BookingStatus.Refunded }.Contains(bf.Booking.Status))
+                                                                    .AnyAsync(bf =>
+                                                                    bf.FieldId == request.FieldId &&
+                                                                    bf.Date == targetDate.Date &&
+                                                                    ((startTime >= bf.StartTime && startTime < bf.EndTime) ||
+                                                                     (endTime > bf.StartTime && endTime <= bf.EndTime) ||
+                                                                     (startTime <= bf.StartTime && endTime >= bf.EndTime)));
 
                         if (isExist)
                         {
@@ -415,7 +419,17 @@ namespace DataAccess.Repositories.Implement
                     }
                 }
 
-                booking.TotalPrice = totalPrice;
+
+                if (request.VoucherId is not null && request.VoucherId != 0)
+                {
+                    var voucher = await _dbContext.Vouchers.FindAsync(request.VoucherId);
+                    var voucherModel = voucher == null ? null : _mapper.Map<VoucherModel>(voucher);
+                    booking.TotalPrice = totalPrice * (1 - (int)voucher.DiscountPercentage / 100);
+                }
+                else
+                {
+                    booking.TotalPrice = totalPrice;
+                }
 
                 _dbContext.Bookings.Add(booking);
                 await _dbContext.SaveChangesAsync();

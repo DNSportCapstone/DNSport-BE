@@ -3,6 +3,7 @@ using DataAccess.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DataAccess.Repositories.Interfaces;
 
 namespace Presentation.Controllers
 {
@@ -11,10 +12,12 @@ namespace Presentation.Controllers
     public class FieldController : ControllerBase
     {
         private readonly IFieldService _fieldService;
+        private readonly IFieldRepository _fieldRepository;
 
-        public FieldController(IFieldService fieldService)
+        public FieldController(IFieldService fieldService, IFieldRepository fieldRepository)
         {
             _fieldService = fieldService;
+            _fieldRepository = fieldRepository;
         }
         [HttpGet("get-all-fields")]
         public async Task<IActionResult> GetAllFields()
@@ -78,6 +81,33 @@ namespace Presentation.Controllers
                 Message = $"Field status updated to {request.Status} successfully."
             });
         }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveFields()
+        {
+            try
+            {
+                var fields = await _fieldRepository.GetActiveFields();
+                return Ok(fields);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
+        [HttpGet("active-fields-by-stadium-id/{stadiumId}")]
+        public async Task<IActionResult> GetActiveFieldsByStadiumId(int stadiumId)
+        {
+            try
+            {
+                var fields = await _fieldRepository.GetActiveFieldsByStadiumId(stadiumId);
+                return Ok(fields);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+    }
 }

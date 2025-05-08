@@ -151,7 +151,7 @@ public class VoucherRepository : IVoucherRepository
             return new VoucherResponse
             {
                 IsError = true,
-                Message = "Apply Voucher Error!"
+                Message = "ApplyVoucherError"
             };
         }
     }

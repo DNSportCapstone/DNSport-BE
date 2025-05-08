@@ -227,5 +227,86 @@ namespace DataAccess.Repositories.Implement
                 return new FieldModel();
             }
         }
+
+        public async Task<List<FieldModel>> GetActiveFields()
+        {
+            try
+            {
+                var fields = await _dbcontext.Fields
+                    .Where(f => f.Status == "Active")
+                    .Select(f => new FieldModel
+                    {
+                        FieldId = f.FieldId,
+                        StadiumName = f.Stadium.StadiumName,
+                        FieldName = f.FieldName,
+                        Description = f.Description ?? string.Empty,
+                        DayPrice = f.DayPrice ?? 0,
+                        NightPrice = f.NightPrice ?? 0,
+                        MaximumPeople = f.MaximumPeople ?? 0,
+                        Status = f.Status,
+                        Thumbnail = f.Images
+                                     .OrderBy(img => img.ImageId)
+                                     .Select(img => img.Url)
+                                     .FirstOrDefault(),
+                        BookingFields = f.BookingFields.Select(bf => new BookingFieldModel
+                        {
+                            BookingFieldId = bf.BookingFieldId,
+                            StartTime = bf.StartTime,
+                            EndTime = bf.EndTime,
+                            Price = bf.Price,
+                            Date = bf.Date
+                        }).ToList()
+                    })
+                    .ToListAsync();
+
+                return fields;
+            }
+            catch
+            {
+                return new List<FieldModel>();
+            }
+        }
+
+        public async Task<List<FieldModel>> GetActiveFieldsByStadiumId(int stadiumId)
+        {
+            try
+            {
+                var fields = await _dbcontext.Fields
+                    .Where(f => f.StadiumId == stadiumId && f.Status == "Active")
+                    .Select(f => new FieldModel
+                    {
+                        FieldId = f.FieldId,
+                        StadiumName = f.Stadium.StadiumName,
+                        FieldName = f.FieldName,
+                        Description = f.Description ?? string.Empty,
+                        DayPrice = f.DayPrice ?? 0,
+                        NightPrice = f.NightPrice ?? 0,
+                        MaximumPeople = f.MaximumPeople ?? 0,
+                        Status = f.Status,
+
+                        Thumbnail = f.Images
+                                     .OrderBy(img => img.ImageId)
+                                     .Select(img => img.Url)
+                                     .FirstOrDefault(),
+
+                        BookingFields = f.BookingFields.Select(bf => new BookingFieldModel
+                        {
+                            BookingFieldId = bf.BookingFieldId,
+                            StartTime = bf.StartTime,
+                            EndTime = bf.EndTime,
+                            Price = bf.Price,
+                            Date = bf.Date
+                        }).ToList()
+                    })
+                    .ToListAsync();
+
+                return fields;
+            }
+            catch
+            {
+                return new List<FieldModel>();
+            }
+
+        }
     }
 }

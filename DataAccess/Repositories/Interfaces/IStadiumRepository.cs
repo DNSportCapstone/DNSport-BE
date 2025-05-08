@@ -13,6 +13,7 @@ namespace DataAccess.Repositories.Interfaces
         Task<IEnumerable<StadiumLessorModel>> GetStadiumsByLessorIdAsync(int userId);
         Task<List<StadiumModel>> GetStadiumsByUserId(int userId);
         Task<List<StadiumModel>> GetPendingStadiums();
+        Task<List<StadiumModel>> GetActiveStadiums();
         Task<bool> UpdateStadiumStatus(int stadiumId, string newStatus);
     }
 }

@@ -70,6 +70,7 @@ namespace DataAccess.Repositories.Implement
                 Status = refund.Status,
                 Time = refund.Time ?? DateTime.MinValue,
                 UserName = refund.User?.UserDetail?.FullName ?? "",
+                UserEmail = refund.User?.Email,
                 BankAccountNumber = refund.User?.BankingAccounts.FirstOrDefault()?.Account ?? ""
             };
         }

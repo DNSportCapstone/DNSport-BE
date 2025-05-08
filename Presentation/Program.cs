@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Net.payOS;
+using Presentation.BackgroundServices;
 using Services.Interfaces;
 using System.Text;
 using VNPAY.NET;
@@ -110,6 +111,9 @@ builder.Services.AddScoped<IStadiumService, StadiumService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IRevenueTransactionService, RevenueTransactionService>();
 builder.Services.AddScoped<ILessorService, LessorService>();
+
+// Hosted Service
+builder.Services.AddHostedService<PaymentStatusUpdaterBackgroundService>();
 
 var corsSettings = builder.Configuration.GetSection("CORS");
 var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
