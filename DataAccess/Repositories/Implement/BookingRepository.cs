@@ -107,14 +107,14 @@ namespace DataAccess.Repositories.Implement
                 // Check slots are all exist
                 foreach (var bookingField in booking.BookingFields)
                 {
-                    var isExist = await _dbContext.BookingFields
-                        .AnyAsync(bf =>
-                            bf.FieldId == bookingField.FieldId &&
-                            bf.Date == bookingField.Date &&
-                            ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
-                             (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
-                             (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
-                        );
+                    var isExist = await _dbContext.BookingFields.Where(bf => !new[] { Constants.BookingStatus.Cancelled, Constants.BookingStatus.Refunded }.Contains(bf.Booking.Status))
+                                                                .AnyAsync(bf =>
+                                                                    bf.FieldId == bookingField.FieldId &&
+                                                                    bf.Date == bookingField.Date &&
+                                                                    ((bookingField.StartTime >= bf.StartTime && bookingField.StartTime < bf.EndTime) ||
+                                                                     (bookingField.EndTime > bf.StartTime && bookingField.EndTime <= bf.EndTime) ||
+                                                                     (bookingField.StartTime <= bf.StartTime && bookingField.EndTime >= bf.EndTime))
+                                                                );
 
                     if (isExist)
                     {
@@ -372,13 +372,13 @@ namespace DataAccess.Repositories.Implement
                         var startTime = targetDate.Date.Add(TimeSpan.Parse(slot.Time));
                         var endTime = startTime.AddMinutes(slot.Duration);
 
-                        // Check trùng slot
-                        var isExist = await _dbContext.BookingFields.AnyAsync(bf =>
-                            bf.FieldId == request.FieldId &&
-                            bf.Date == targetDate.Date &&
-                            ((startTime >= bf.StartTime && startTime < bf.EndTime) ||
-                             (endTime > bf.StartTime && endTime <= bf.EndTime) ||
-                             (startTime <= bf.StartTime && endTime >= bf.EndTime)));
+                        var isExist = await _dbContext.BookingFields.Where(bf => !new[] { Constants.BookingStatus.Cancelled, Constants.BookingStatus.Refunded }.Contains(bf.Booking.Status))
+                                                                    .AnyAsync(bf =>
+                                                                    bf.FieldId == request.FieldId &&
+                                                                    bf.Date == targetDate.Date &&
+                                                                    ((startTime >= bf.StartTime && startTime < bf.EndTime) ||
+                                                                     (endTime > bf.StartTime && endTime <= bf.EndTime) ||
+                                                                     (startTime <= bf.StartTime && endTime >= bf.EndTime)));
 
                         if (isExist)
                         {
