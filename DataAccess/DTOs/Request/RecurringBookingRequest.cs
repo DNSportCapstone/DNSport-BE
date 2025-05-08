@@ -15,6 +15,8 @@ namespace DataAccess.DTOs.Request
         public int FieldId { get; set; }
         public List<SlotDto> SelectedSlots { get; set; }
         public int UserId { get; set; }
+        public int? VoucherId { get; set; }
+
     }
 
 

@@ -11,10 +11,12 @@ namespace DataAccess.Services.Implement
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IFieldRepository _fieldRepository;
-        public BookingService(IBookingRepository bookingRepository, IFieldRepository fieldRepository)
+        private readonly IVoucherRepository _voucherRepository;
+        public BookingService(IBookingRepository bookingRepository, IFieldRepository fieldRepository, IVoucherRepository voucherRepository)
         {
             _bookingRepository = bookingRepository;
             _fieldRepository = fieldRepository;
+            _voucherRepository = voucherRepository;
         }
 
         public async Task<List<RevenueReportModel>> GetRevenueReport()
@@ -48,7 +50,7 @@ namespace DataAccess.Services.Implement
                     Status = Constants.BookingStatus.PendingPayment,
                     VoucherId = request.VoucherId != 0 ? request.VoucherId : null
                 };
-
+                
                 decimal? totalPrice = 0;
 
                 foreach (var field in request.Fields)
@@ -86,7 +88,15 @@ namespace DataAccess.Services.Implement
                         booking.BookingFields.Add(bookingField);
                     }
                 }
-                booking.TotalPrice = totalPrice;
+                if (request.VoucherId is not null && request.VoucherId != 0)
+                {
+                    var voucher = await _voucherRepository.GetVoucherByIdAsync((int)request.VoucherId);
+                    booking.TotalPrice = totalPrice * (1 - (int)voucher.DiscountPercentage /100);
+                }
+                else
+                {
+                    booking.TotalPrice = totalPrice;
+                }
 
                 return await _bookingRepository.CreateMultipleBookings(booking);
             }
