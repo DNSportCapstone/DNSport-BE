@@ -161,5 +161,23 @@ namespace DataAccess.Repositories.Implement
             return true;
         }
 
+        public async Task<List<StadiumModel>> GetActiveStadiums()
+        {
+            var result = await (from s in _dbcontext.Stadiums
+                                join u in _dbcontext.Users on s.UserId equals u.UserId
+                                join ud in _dbcontext.UserDetails on u.UserId equals ud.UserId
+                                where s.Status == "Active"
+                                select new StadiumModel
+                                {
+                                    StadiumId = s.StadiumId,
+                                    UserId = s.UserId,
+                                    StadiumName = s.StadiumName,
+                                    Address = s.Address,
+                                    Image = s.Image,
+                                    Status = s.Status,
+                                    Owner = ud.FullName == string.Empty ? u.Email : $"{ud.FullName} - {u.Email}",
+                                }).AsNoTracking().ToListAsync();
+            return result;
+        }
     }
 }
