@@ -55,6 +55,32 @@ namespace Presentation.Controllers
             }
             return Ok(field);
         }
+        [HttpPut("set-status")]
+        public async Task<IActionResult> SetFieldStatus([FromBody] FieldStatusRequest request)
+        {
+            if (request == null || request.FieldId <= 0 || string.IsNullOrEmpty(request.Status))
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            if (request.Status != "Active" && request.Status != "Disable")
+            {
+                return BadRequest("Status must be 'Active' or 'Disable'.");
+            }
+
+            var result = await _fieldService.SetFieldStatus(request);
+            if (result == 0)
+            {
+                return NotFound("Field not found.");
+            }
+
+            return Ok(new
+            {
+                FieldId = request.FieldId,
+                Status = request.Status,
+                Message = $"Field status updated to {request.Status} successfully."
+            });
+        }
 
         [HttpGet("active")]
         public async Task<IActionResult> GetActiveFields()
