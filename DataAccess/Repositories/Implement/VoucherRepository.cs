@@ -86,7 +86,8 @@ public class VoucherRepository : IVoucherRepository
             {
                 VoucherId = v.VoucherId,
                 VoucherCode = v.VoucherCode,
-                ExpirationDate = (DateTime)v.ExpiryDate
+                ExpirationDate = (DateTime)v.ExpiryDate,
+                DiscountPercentage = v.DiscountPercentage
             })
             .ToListAsync();
         return result;
